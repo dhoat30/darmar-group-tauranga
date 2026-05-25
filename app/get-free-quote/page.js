@@ -69,6 +69,7 @@ export default async function Home() {
         <Layout
           sections={sections}
           ductCleaning={options["12a_duct_cleaning"]}
+          clientLogos={options.client_logos || options.clients_logos || options.client_logos_section}
           uspData={options.usp}
                     uspTable={options.usp_table}
 

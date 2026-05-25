@@ -22,10 +22,12 @@ import HeroSection from "./Sections/HeroSection/HeroSection";
 import ServiceCardsTwoColumn from "./Sections/ServiceCardsTwoColumn/ServiceCardsTwoColumn";
 import UspAccordionSection from "./Sections/UspAccordionSection/UspAccordionSection";
 import DuctCleaningSection from "./Sections/DuctCleaningSection/DuctCleaningSection";
+import ClientLogosSection from "./Sections/ClientLogosSection/ClientLogosSection";
 export default function Layout({
   uspTable,
   sections,
   ductCleaning,
+  clientLogos,
   uspData,
   statsData,
   locationsCovered,
@@ -41,7 +43,7 @@ export default function Layout({
 }) {
 
   if (!sections) return null;
-  console.log(sections[5]);
+  console.log(sections);
   const sectionsJSX = sections.map((section, index) => {
     if (section.acf_fc_layout === "moving_card_form_section") {
       return (
@@ -58,13 +60,7 @@ export default function Layout({
         />
       );
     }
-    // if (4 === 4) {
-    //   return (
-    //     <section key={index} className={` flex align-center`}>
-    //       <ClientOnlyJobsMap jobs={serviceJobs} />
-    //     </section>
-    //   );
-    // }
+  
     if (section.acf_fc_layout === "tabs_section") {
       return (
         <TabsSection
@@ -119,6 +115,9 @@ export default function Layout({
           cards={section.cards}
         />
       );
+    }
+    if (section.acf_fc_layout === "show_client_logos") {
+      return <ClientLogosSection key={index} logos={clientLogos} />;
     }
     if (section.acf_fc_layout === "cards_section") {
       return (

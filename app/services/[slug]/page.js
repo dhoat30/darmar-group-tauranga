@@ -64,6 +64,7 @@ export default async function Home({ params }) {
           sections={sections}
           uspTable={options.usp_table}
           ductCleaning={options["12a_duct_cleaning"]}
+          clientLogos={options.client_logos || options.clients_logos || options.client_logos_section}
 
           // googleReviewsData={googleReviews}
           uspData={options.usp}

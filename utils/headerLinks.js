@@ -54,7 +54,7 @@ export const headerLinks = [
   //   url: "/intercity-movers/long-distance-routes",
   // },
 
-  { label: "About Us", url: "/about-us" },
+  // { label: "About Us", url: "/about-us" },
 
-  { label: "Contact Us", url: "/contact-us" },
+  // { label: "Contact Us", url: "/contact-us" },
 ];
