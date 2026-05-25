@@ -1,0 +1,89 @@
+.section {
+  padding: 56px 0;
+
+  @media (max-width: 900px) {
+    padding: 32px 0;
+  }
+
+  .wrapper {
+    position: relative;
+    overflow: hidden;
+    padding: 68px 32px;
+    background: var(--light-primary);
+    border-radius: 20px;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+background: linear-gradient(49deg, rgba(245, 189, 111, 0.30) 15.69%, rgba(245, 189, 111, 0.10) 61.5%);
+      border-bottom-left-radius: 500%;
+      pointer-events: none;
+    }
+
+    @media (max-width: 700px) {
+      padding: 48px 20px;
+      border-radius: 16px;
+
+      &::after {
+        width: 92px;
+        height: 72px;
+      }
+    }
+
+    .contentWrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+
+      .title {
+      
+      }
+
+      .description {
+     
+
+        p {
+          color: rgba(255, 255, 255, 0.72);
+       
+        }
+
+        strong {
+          color: rgba(255, 255, 255, 0.88);
+          font-weight: 700;
+        }
+      }
+
+      .buttonWrapper {
+       
+
+    
+
+        .quoteButton {
+          background: #ffc05f;
+          color: var(--light-primary);
+
+          &:hover {
+            background: #ffd18b;
+          }
+        }
+
+        .phoneButton {
+          border-color: rgba(255, 255, 255, 1);
+          color: var(--light-on-primary);
+          background: transparent;
+
+          &:hover {
+            border-color: var(--light-on-primary);
+            background: rgba(255, 255, 255, 0.08);
+          }
+        }
+      }
+    }
+  }
+}
