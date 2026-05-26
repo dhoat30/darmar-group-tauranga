@@ -8,7 +8,7 @@ export const lightTheme = createTheme({
       main: "#1D1F2A",
     },
     secondary: {
-      main: "#BF7F07",
+      main: "#1b285c",
     },
     tertiary: {
       main: "#C7B79D",
@@ -80,7 +80,8 @@ lineHeight: "140%",
       fontFamily: ["var(--font-work-sans)", "Segoe UI", "sans-serif"].join(","),
       fontSize: "1rem",
       color: "var( --light-on-surface-variant)",
-      lineHeight:"140%"
+      lineHeight:"140%", 
+        letterSpacing: "-0.02rem"
     },
     body2: {
       fontFamily: ["var(--font-work-sans)", "Segoe UI", "sans-serif"].join(","),
@@ -143,6 +144,81 @@ lineHeight: "140%",
           },
           "& .MuiButton-startIcon > *:nth-of-type(1), & .MuiButton-endIcon > *:nth-of-type(1)": {
             fontSize: "1.1em",
+          },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "var(--light-primary)",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "var(--light-primary)",
+            borderWidth: "2px",
+          },
+        },
+        notchedOutline: {
+          borderColor: "var(--light-outline-variant)",
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          "&.Mui-focused": {
+            color: "var(--light-primary)",
+          },
+        },
+      },
+    },
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+          "&.Mui-focused": {
+            color: "var(--light-primary)",
+          },
+        },
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: "var(--light-primary)",
+          "&.Mui-checked": {
+            color: "var(--light-primary)",
+          },
+        },
+      },
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          color: "var(--light-primary)",
+          "&.Mui-checked": {
+            color: "var(--light-primary)",
+          },
+        },
+      },
+    },
+    MuiSlider: {
+      styleOverrides: {
+        root: {
+          color: "var(--light-primary)",
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          "&.MuiChip-colorSecondary": {
+            borderColor: "var(--light-primary)",
+            color: "var(--light-primary)",
+          },
+          "&.MuiChip-filled.MuiChip-colorSecondary": {
+            backgroundColor: "var(--light-primary)",
+            color: "var(--light-on-primary)",
           },
         },
       },

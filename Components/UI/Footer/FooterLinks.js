@@ -1,12 +1,12 @@
 export const services = [
     {
         label: "Commercial Cleaning",
-        url: "/commercial-cleaning",
+        url: "/services/commercial-cleaning",
   
       },
         {
         label: "Commercial Maintenance",
-        url: "/commercial-maintenance",
+        url: "/services/commercial-maintenance",
   
       },
      

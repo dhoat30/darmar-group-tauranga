@@ -128,17 +128,22 @@ export default function Input({
         >
           {options.map((option, index) => (
             <MenuItem key={index} value={option.value}>
-              <Checkbox
-                        color={"secondary"}
+              {multipleValue && (
+                <Checkbox
+                          color={"secondary"}
 
-                checked={value.indexOf(option.value) > -1}
-              />
+                  checked={Array.isArray(value) && value.indexOf(option.value) > -1}
+                />
+              )}
               <ListItemText
                 primary={option.label}
               />
             </MenuItem>
           ))}
         </Select>
+        <FormHelperText error={isInvalid}>
+          {isInvalid && errorMessage}
+        </FormHelperText>
       </FormControl>
     );
   } else if (type == "checkbox") {
@@ -349,8 +354,8 @@ export default function Input({
         error={required ? isInvalid : null}
         multiline={type === "textarea" ? true : false}
         minRows={type === "textarea" ? 3 : null}
+        placeholder={props.placeholder}
       />
     );
   }
 }
-

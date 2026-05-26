@@ -7,23 +7,23 @@ export default function RegularProcess({ title, description, cards, image }) {
 
   const stepCards = cards.map((item, index) => {
     return (
-      <div className={`${styles.stepWrapper} grid`} key={index}>
+      <div className={`${styles.stepWrapper} `} key={index}>
         <div className={`${styles.title}`}>
           <div
-            className={`${styles.stepTitleNumberWrapper} flex gap-8 align-bottom`}
+            className={`${styles.stepTitleNumberWrapper} flex  align-center justify-center `}
           >
-            <Typography variant="h4" component="div" className={`${styles.stepNumber}`}>0{index + 1}.</Typography>
+            <Typography variant="h6" component="div" className={`${styles.stepNumber}`}>{index + 1}</Typography>
           
           </div>
         </div>
-        <div className={`${styles.content}`}>
+        <div className={`${styles.content} mt-16`}>
         <Typography variant="h6" component="h3">
               {item.title}
             </Typography>
           <Typography
             variant="body1"
             component="div"
-            className="description"
+            className="description body1 mt-8" 
             dangerouslySetInnerHTML={{ __html: item.description }}
           ></Typography>
         </div>
@@ -33,34 +33,32 @@ export default function RegularProcess({ title, description, cards, image }) {
 
   return (
     <section className={`${styles.section}`}>
-      <Container maxWidth="xl" className={`${styles.container} grid gap-80 align-center`}>
-        <div className={`${styles.imageWrapper} image-wrapper border-radius-16`} style={{paddingBottom: `${image.height / image.width * 100}%`}}>
-          {/* <div className={`${styles.backgroundGradient} `}></div> */}
-          <Image src={image.url} alt={image.alt || title} fill sizes="(max-width: 1100px) 100vw, (max-width: 1200px) 50vw" className="border-radius-16" />
-        </div>
-        <div className={`${styles.contentWrapper} `}>
+      <Container maxWidth="xl" className={`${styles.container}`}>
+      
+        <Container maxWidth="md" className={`${styles.contentWrapper} `}>
           <div className={`${styles.titleWrapper}`}>
             <Typography
-              variant="h4"
+              variant="h2"
               component="h2"
-              className={`${styles.titleWrapper}`}
+              className={`${styles.titleWrapper} center-align`}
             >
               {title}
             </Typography>
             {description && (
-              <Typography variant="body1" component="p">
-                {description}
-              </Typography>
+            
+              <div             
+              className="heading-5 mt-16 center-align"
+              dangerouslySetInnerHTML={{ __html: description }}
+              ></div>
             )}
           </div>
-
-          <div
-            className={`${styles.stepsWrapper} grid gap-32 space-between mt-24 `}
+        </Container>
+        
+           <div
+            className={`${styles.stepsWrapper} gap-24 space-between mt-40 `}
           >
             {stepCards}
           </div>
-        </div>
-        
       </Container>
     </section>
   );

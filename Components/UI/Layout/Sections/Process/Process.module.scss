@@ -1,16 +1,12 @@
 .section { 
     padding: 80px 0 80px 0;
     overflow: hidden !important;
+    background-color: var(--light-surface-container-high);
     @media(max-width:600px ){ 
         padding: 40px 0 40px 0;
     }
     .container { 
-        grid-template-columns: 1fr 1fr;
-        @media(max-width:1100px ){ 
-           display: flex; 
-           flex-direction: column-reverse;
-           gap: 24px
-        }
+ 
         .imageWrapper{ 
             overflow: visible !important;
             .backgroundGradient { 
@@ -31,38 +27,39 @@
         }
        
         .stepsWrapper{ 
-            grid-template-columns: 1fr;
-    @media(max-width:900px ){ 
-        grid-template-columns: 1fr; 
-        gap: 16px; 
-        margin-top: 16px; 
-    }
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            @media(max-width:900px ){ 
+                gap: 16px; 
+                margin-top: 16px; 
+            }
             .stepWrapper{ 
+                flex: 1 1 280px;
+                max-width: 420px;
                 position: relative; 
-                grid-template-columns: 100px auto;
-              
-               
+                background-color: var(--light-surface-container-lowest);
+               padding: 24px 24px;
+               border-radius: 12px; 
+               border: 1px solid var(--light-outline-variant);
+               @media(max-width:900px ){ 
+                padding: 16px 16px;} 
                 .title{ 
                    .stepTitleNumberWrapper{ 
-                 
+                    border: 1px solid var(--light-outline-variant);
+                    background: var(--light-surface-container); 
+                    width: 56px; 
+                    height: 56px; 
+                    border-radius: 500%;
                     .stepNumber{
                         font-weight: 700;
-                        color: #1A868A;
-                        min-width: 56px;
+                        color: var(--light-secondary);
+                        line-height: 0;
 
-                        @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-                            background: var(--text-gradient, linear-gradient(90deg, #1A868A 0%, #6AEB95 100%));
-                            background-clip: text;
-                            -webkit-background-clip: text;
-                            color: transparent;
-                            -webkit-text-fill-color: transparent;
-                        }
+                    
 
-                        :global(html.recording) & {
-                            background: none;
-                            color: #1A868A;
-                            -webkit-text-fill-color: #1A868A;
-                        }
+                    
 
                     }
                    } 

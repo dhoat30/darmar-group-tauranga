@@ -7,12 +7,9 @@ const logFetchWarning = (label, err) => {
 //get single post with slug
 export const getSinglePostData = async (slug, apiRoute) => {
 
-  console.log("Fetching from API:", slug);
-console.log("API Route:", apiRoute);
-console.log("URL:", process.env.url);
+
   try {
     const url = `${process.env.url}/${apiRoute}?slug=${slug}&acf_format=standard`;
-    console.log("Fetching:", url);
 
     const response = await fetch(url, {
       headers: {

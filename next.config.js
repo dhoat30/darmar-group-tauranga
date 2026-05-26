@@ -26,8 +26,8 @@ const nextConfig = {
             pathname: '/**',
         },
         {
-            protocol: 'http',
-            hostname: 'darmar-group.local',
+            protocol: 'https',
+            hostname: 'gurpreetd16.sg-host.com',
             port: '',
             pathname: '/**',
         },
@@ -41,7 +41,7 @@ const nextConfig = {
     ],
     },
     env: {
-        url: "http://darmar-group.local",
+        url: "https://gurpreetd16.sg-host.com",
         siteUrl: baseUrl,
         siteName: siteName,
     },

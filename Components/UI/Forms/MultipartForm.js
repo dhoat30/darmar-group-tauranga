@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Input from "./InputFields/Input";
-import { getQuoteFormData } from "@/utils/getQuoteFormData";
-import { servicePropertyMap } from "@/utils/getQuoteFormData"; // Import the service mapping
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import axios from "axios";
@@ -11,9 +9,17 @@ import Alert from "@mui/material/Alert";
 import Container from "@mui/material/Container";
 import { useRouter } from "next/navigation";
 import Typography from "@mui/material/Typography";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
+import Checkbox from "@mui/material/Checkbox";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import Link from "next/link";
 import GoogleAutocomplete from "@/Components/GoogleMaps/GoogleAutoComplete";
 import styles from "./FormStyle.module.scss";
-import dayjs from "dayjs";
 import { useClickIds } from "@/hooks/useClickIds";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import {
@@ -22,112 +28,218 @@ import {
   uploadGoogleAdsConversion,
 } from "@/utils/conversionTracking";
 
+const cleaningServices = [
+  "Office Cleaning",
+  "Supermarket & Retail",
+  "Medical Facility",
+  "End of Tenancy",
+  "Airbnb & Short-Stay",
+  "Food Premises",
+  "Post-Construction Clean-Up",
+    "School, College & ECE",
+
+];
+
+const maintenanceServices = [
+  "12A Duct Cleaning",
+ 
+  "Line Marking",
+  "Water Blasting",
+  "Building Wash",
+  "Window Cleaning",
+ 
+  "Painting",
+  "Carpark Sweeping",
+  "Access Mats",
+   "Vinyl Floor Polishing",
+   "Concrete Grinding & Polishing",
+  "Deli, Bakery & Restroom Deep Cleaning",
+  "Tile & Carpet Steam Cleaning",
+  "General Repairs & Maintenance",
+];
+
+const propertyTypes = [
+  "Supermarket",
+  "Food Premises (Cafe, Restaurant, Bakery)",
+  "Office Building",
+  "Medical Facility",
+  "Education (School, College, ECE)",
+  "Retail Store",
+  "Industrial / Warehouse",
+  "Other Commercial",
+];
+
+const frequencies = [
+  "One-off job",
+  "Weekly",
+  "Fortnightly",
+  "Monthly",
+  "Ongoing programme",
+  "Not sure yet",
+];
+
+const sizeOptions = [
+  { value: "Small (up to 200m²)", label: "Small (up to 200m²)" },
+  { value: "Medium (200-1,000m²)", label: "Medium (200-1,000m²)" },
+  { value: "Large (1,000m²+)", label: "Large (1,000m²+)" },
+];
+
 const STEPS = [
   {
     number: 1,
-    label: "Route",
-    fields: ["pickUpAddress", "dropOffAddress"],
-    title: "Tell us where you're moving from and to.",
+    label: "Services",
+    title: "What service do you need?",
+    subtitle:
+      "Step 1 of 3 — Select the services you're enquiring about. You can choose more than one, across both categories.",
   },
   {
     number: 2,
-    label: "Contact",
-    fields: ["propertyType", "service"],
-    title: "Tell us about the property.",
+    label: "Site",
+    title: "Tell us about your site",
+    subtitle:
+      "Step 2 of 3 — A few quick details so we can prepare an accurate quote.",
   },
   {
     number: 3,
-    label: "Extra Details",
-    fields: ["firstname", "email", "phone", "message"],
-    title: "Contact details and any special requirements.",
+    label: "Contact",
+    title: "How can we reach you?",
+    subtitle: "Step 3 of 3 — We'll be in touch within 1 business day.",
   },
 ];
+
+const toOptions = (items) => items.map((item) => ({ value: item, label: item }));
+const isEmailValid = (value) => /\S+@\S+\.\S+/.test(value);
+const hasValue = (value) => typeof value === "string" && value.trim().length > 0;
+const isFullNameValid = (value) =>
+  typeof value === "string" && value.trim().length > 1;
+const isPhoneValid = (value) => {
+  const cleanPhone = (value || "").replace(/[^0-9]/g, "");
+  return cleanPhone.length > 6;
+};
+
+const contactFieldValidators = {
+  fullName: isFullNameValid,
+  email: isEmailValid,
+  phone: isPhoneValid,
+};
 
 export default function MultipartForm({
   className,
   formName = "Get a Quote Form",
-  title = "Please fill out a form",
   hideTitle = false,
 }) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    firstname: "", // Default empty string to make it controlled
+    cleaningServices: [],
+    maintenanceServices: [],
+    propertyAddress: "",
+    propertyType: "",
+    approximateSize: "",
+    frequency: "",
+    fullName: "",
     email: "",
     phone: "",
-    address: "",
-    pickUpAddress: "",
-    dropOffAddress: "",
-    propertyType: "",
-    date: null,
-    service: [],
+    preferredContactMethod: "",
     message: "",
+    consent: false,
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [newSubmission, setNewSubmission] = useState(false);
-  const [googleAdsAddress, setGoogleAdsAddress] = useState({
-    pickUpAddress: {},
-    dropOffAddress: {},
-  }); // For Google Ads conversion tracking
-  // click id
+  const [touched, setTouched] = useState({});
   const { clickIds } = useClickIds();
-  const handleChange = (id, value, isSelectMultiple) => {
-    let newValue = value.target ? value.target.value : value;
+
+  const handleChange = (id, value) => {
+    const newValue = value?.target ? value.target.value : value;
 
     setFormData((prevFormData) => ({
       ...prevFormData,
       [id]: newValue,
     }));
 
-    // Reset errors on change
-    if (errors[id]) {
-      setErrors({ ...errors, [id]: false });
-    }
+    setErrors((prevErrors) => {
+      const nextErrors = { ...prevErrors };
+
+      if (id === "cleaningServices" || id === "maintenanceServices") {
+        nextErrors.services = false;
+      }
+
+      if (contactFieldValidators[id] && touched[id]) {
+        nextErrors[id] = !contactFieldValidators[id](newValue);
+      } else if (prevErrors[id]) {
+        nextErrors[id] = false;
+      }
+
+      return nextErrors;
+    });
   };
 
-  const handleBlur = (id, validationFunction) => {
-    if (!validationFunction(formData[id])) {
-      setErrors({ ...errors, [id]: true });
-    }
+  const validateContactField = (id) => {
+    const validator = contactFieldValidators[id];
+    if (!validator) return true;
+
+    const isValid = validator(formData[id]);
+    setTouched((prevTouched) => ({ ...prevTouched, [id]: true }));
+    setErrors((prevErrors) => ({ ...prevErrors, [id]: !isValid }));
+    return isValid;
   };
 
-  // Get fields for current step
-  const getCurrentStepFields = () => {
-    const currentStepData = STEPS.find((step) => step.number === currentStep);
-    return currentStepData ? currentStepData.fields : [];
-  };
-
-  // Validate current step fields
   const validateStep = (stepNumber) => {
-    const currentStepData = STEPS.find((step) => step.number === stepNumber);
-    if (!currentStepData) return true;
-
-    let stepFieldsValid = true;
     const newErrors = {};
 
-    currentStepData.fields.forEach((fieldId) => {
-      const field = getQuoteFormData.find((f) => f.id === fieldId);
-      if (field && field.required) {
-        if (field.type === "chip") {
-          if (!formData[fieldId] || formData[fieldId].length === 0) {
-            newErrors[fieldId] = true;
-            stepFieldsValid = false;
-          }
-        } else if (
-          !formData[fieldId] ||
-          !field.validation(formData[fieldId])
-        ) {
-          newErrors[fieldId] = true;
-          stepFieldsValid = false;
-        }
+    if (stepNumber === 1) {
+      const selectedServices =
+        formData.cleaningServices.length + formData.maintenanceServices.length;
+
+      if (selectedServices === 0) {
+        newErrors.services = true;
       }
-    });
+    }
+
+    if (stepNumber === 2) {
+      if (!hasValue(formData.propertyAddress)) newErrors.propertyAddress = true;
+      if (!hasValue(formData.propertyType)) newErrors.propertyType = true;
+      if (!hasValue(formData.approximateSize)) newErrors.approximateSize = true;
+      if (!hasValue(formData.frequency)) newErrors.frequency = true;
+    }
+
+    if (stepNumber === 3) {
+      if (!isFullNameValid(formData.fullName)) newErrors.fullName = true;
+      if (!isEmailValid(formData.email)) newErrors.email = true;
+      if (!isPhoneValid(formData.phone)) newErrors.phone = true;
+      if (!hasValue(formData.preferredContactMethod)) {
+        newErrors.preferredContactMethod = true;
+      }
+      if (!formData.consent) newErrors.consent = true;
+    }
 
     setErrors((prevErrors) => ({ ...prevErrors, ...newErrors }));
-    return stepFieldsValid;
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateAllSteps = () => {
+    const allErrors = {};
+    const selectedServices =
+      formData.cleaningServices.length + formData.maintenanceServices.length;
+
+    if (selectedServices === 0) allErrors.services = true;
+    if (!hasValue(formData.propertyAddress)) allErrors.propertyAddress = true;
+    if (!hasValue(formData.propertyType)) allErrors.propertyType = true;
+    if (!hasValue(formData.approximateSize)) allErrors.approximateSize = true;
+    if (!hasValue(formData.frequency)) allErrors.frequency = true;
+    if (!isFullNameValid(formData.fullName)) allErrors.fullName = true;
+    if (!isEmailValid(formData.email)) allErrors.email = true;
+    if (!isPhoneValid(formData.phone)) allErrors.phone = true;
+    if (!hasValue(formData.preferredContactMethod)) {
+      allErrors.preferredContactMethod = true;
+    }
+    if (!formData.consent) allErrors.consent = true;
+
+    setErrors(allErrors);
+    return Object.keys(allErrors).length === 0;
   };
 
   const handleNextStep = () => {
@@ -140,53 +252,35 @@ export default function MultipartForm({
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  // Submit handler - validates all fields before submission
   const submitHandler = (e) => {
     e.preventDefault();
 
-    let allFieldsValid = true;
-    const newErrors = {};
-
-    // Loop through each field to check if it's required and valid
-    getQuoteFormData.forEach((field) => {
-      if (field.required) {
-        if (field.type === "chip") {
-          if (!formData[field.id] || formData[field.id].length === 0) {
-            newErrors[field.id] = true;
-            allFieldsValid = false;
-          }
-        } else if (
-          !formData[field.id] ||
-          !field.validation(formData[field.id])
-        ) {
-          newErrors[field.id] = true;
-          allFieldsValid = false;
-        }
-      }
-    });
-
-    setErrors(newErrors);
-    // If any required field is invalid, stop and don't make API calls
-    if (!allFieldsValid) {
-      return; // Stop the function if any field is invalid o  r empty
+    if (!validateAllSteps()) {
+      return;
     }
 
-    const parts = formData.firstname.trim().split(/\s+/); // split by any whitespace
+    const parts = formData.fullName.trim().split(/\s+/);
     const firstName = parts[0] || "";
-    const lastName = parts.slice(1).join(" ") || ""; // everything after firstName
-
-    let formattedDate = dayjs(formData.datePicker).valueOf();
+    const lastName = parts.slice(1).join(" ") || "";
+    const selectedServices = [
+      ...formData.cleaningServices,
+      ...formData.maintenanceServices,
+    ];
 
     const dataPayload = {
       email: formData.email,
-      formName: formName,
-      message: `First Name: ${formData.firstname} \nEmail: ${formData.email
-        } \nPhone Number: ${formData.phone} \n Pick Up Address: ${formData.pickUpAddress
-        }\n Drop Off Address: ${formData.dropOffAddress}
-      \nProperty Type: ${formData.propertyType}
-       \nMove Date: ${formattedDate}
-       \nServices Required: ${formData["service"].join(", ")} \n Message: ${formData.message
-        } `,
+      formName,
+      message: `Full Name: ${formData.fullName}
+Email: ${formData.email}
+Phone Number: ${formData.phone}
+Preferred Contact Method: ${formData.preferredContactMethod}
+Property Address: ${formData.propertyAddress}
+Property Type: ${formData.propertyType}
+Approximate Size: ${formData.approximateSize}
+Frequency: ${formData.frequency}
+Cleaning Services: ${formData.cleaningServices.join(", ")}
+Maintenance Services: ${formData.maintenanceServices.join(", ")}
+Message: ${formData.message}`,
       hubspotFormID: process.env.NEXT_PUBLIC_HUBSPOT_GET_QUOTE_FORM_ID,
       hubspotFormObject: [
         { name: "hs_google_click_id", value: clickIds.gclid || "" },
@@ -212,73 +306,56 @@ export default function MultipartForm({
         { name: "fb_ad_id", value: clickIds.fb_ad_id || "" },
         { name: "fb_adset_id", value: clickIds.fb_adset_id || "" },
         { name: "fb_site_source", value: clickIds.fb_site_source || "" },
-
-        { name: "firstname", value: formData.firstname },
+        { name: "firstname", value: firstName },
+        { name: "lastname", value: lastName },
         { name: "email", value: formData.email },
         { name: "phone", value: formData.phone },
-        { name: "pick_up_address", value: formData.pickUpAddress },
-        { name: "drop_off_address", value: formData.dropOffAddress },
+        { name: "preferred_contact_method", value: formData.preferredContactMethod },
+        { name: "property_address", value: formData.propertyAddress },
         { name: "property_type", value: formData.propertyType },
-        { name: "move_date", value: "null" },
-        { name: "services_required", value: formData["service"].join(", ") },
+        { name: "approximate_size", value: formData.approximateSize },
+        { name: "frequency", value: formData.frequency },
+        { name: "services_required", value: selectedServices.join(", ") },
+        { name: "cleaning_services", value: formData.cleaningServices.join(", ") },
+        {
+          name: "maintenance_services",
+          value: formData.maintenanceServices.join(", "),
+        },
         { name: "message", value: formData.message },
       ],
     };
+
     setIsLoading(true);
 
-    // Hubspot config
-    var configHubspot = {
+    const configHubspot = {
       method: "post",
       url: "/api/submit-hubspot-form",
       headers: { "Content-Type": "application/json" },
       data: dataPayload,
     };
-    // Mailgun config
-    var configSendMail = {
+    const configSendMail = {
       method: "post",
       url: "/api/sendmail",
       headers: { "Content-Type": "application/json" },
       data: dataPayload,
     };
 
-    // const facebookData = {
-    //     method: 'post',
-    //     url: '/api/facebook-conversion-api',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     data: {
-    //         data: {
-    //         event: "Lead",
-    //         firstName: formData.firstname,
-    //         email: formData.email,
-    //         phone: formData.phone,
-    //         county: "Bay of Plenty",
-    //         eventSourceUrl: window.location.href,
-    //         serviceRequested: formData['service'].join(", ")
-    //     }
-
-    //     }
-    // }
-
     Promise.all([axios(configHubspot), axios(configSendMail)])
       .then(function (response) {
-        console.log(response);
         if (response[0].status === 200) {
           setIsLoading(false);
           setIsSuccess(true);
           setNewSubmission(false);
           setError(false);
-          const eventId = createConversionEventId("moving-quote");
+          const eventId = createConversionEventId("get-quote");
           const browserConversion = trackLeadConversion({
             eventId,
-            formName: "Moving Quote",
+            formName,
             formData: {
-              firstName: firstName,
+              firstName,
+              lastName,
               email: formData.email,
               phone: formData.phone,
-              street: `${googleAdsAddress.pickUpAddress.streetNumber || ""} ${googleAdsAddress.pickUpAddress.streetName || ""}`.trim(),
-              city: googleAdsAddress.pickUpAddress.city,
-              region: googleAdsAddress.pickUpAddress.region,
-              postCode: googleAdsAddress.pickUpAddress.postalCode,
               gclid: clickIds.gclid,
               gbraid: clickIds.gbraid,
               wbraid: clickIds.wbraid,
@@ -294,8 +371,8 @@ export default function MultipartForm({
             gclid: clickIds.gclid,
             gbraid: clickIds.gbraid,
             wbraid: clickIds.wbraid,
-          }).catch((error) => {
-            console.error("Google Ads server conversion failed", error);
+          }).catch((conversionError) => {
+            console.error("Google Ads server conversion failed", conversionError);
           });
           Promise.allSettled([browserConversion, serverConversion]).finally(() => {
             router.push("/form-submitted/thank-you");
@@ -307,8 +384,8 @@ export default function MultipartForm({
           setNewSubmission(true);
         }
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch(function (submitError) {
+        console.log(submitError);
         setIsLoading(false);
         setIsSuccess(false);
         setError(true);
@@ -316,222 +393,357 @@ export default function MultipartForm({
       });
   };
 
-  // Get the filtered service options based on propertyType
-  const getFilteredServiceOptions = () => {
-    if (formData.propertyType && servicePropertyMap[formData.propertyType]) {
-      return servicePropertyMap[formData.propertyType];
+  const renderStepFields = () => {
+    if (currentStep === 1) {
+      return (
+        <>
+          <Input
+            lightTheme
+            label="Cleaning services"
+            type="chip"
+            value={formData.cleaningServices}
+            onChange={(newValue) => handleChange("cleaningServices", newValue)}
+            required
+            isInvalid={errors.services}
+            errorMessage="Please select at least one service."
+            options={toOptions(cleaningServices)}
+            multipleValue
+          />
+          <Input
+            lightTheme
+            label="Maintenance services"
+            type="chip"
+            value={formData.maintenanceServices}
+            onChange={(newValue) => handleChange("maintenanceServices", newValue)}
+            required
+            isInvalid={errors.services}
+            errorMessage="Please select at least one service."
+            options={toOptions(maintenanceServices)}
+            multipleValue
+          />
+        </>
+      );
     }
-    return [];
-  };
 
-  // is address field
-  const isAddressField = (id) => {
-    return ["address", "pickUpAddress", "dropOffAddress"].includes(id);
-  };
-
-  // Render only fields for current step
-  const getStepFormInputs = () => {
-    const currentStepFields = getCurrentStepFields();
-    return currentStepFields.map((fieldId, index) => {
-      const field = getQuoteFormData.find((f) => f.id === fieldId);
-      if (!field) return null;
-
-      if (field.id === "service") {
-        const filteredOptions = getFilteredServiceOptions();
-        return (
-          <Input
-            lightTheme={true}
-            key={index}
-            label={field.label}
-            type={field.type}
-            value={formData[field.id]}
-            onChange={(newValue) =>
-              handleChange(field.id, newValue, field.multiple)
-            }
-            onBlur={
-              field.required ? () => handleBlur(field.id, field.validation) : null
-            }
-            required={field.required}
-            autoComplete={field.autoComplete}
-            isInvalid={errors[field.id]}
-            errorMessage={field.errorMessage}
-            options={filteredOptions}
-            multipleValue={field.multiple}
+    if (currentStep === 2) {
+      return (
+        <>
+          <GoogleAutocomplete
+            className="mt-16"
+            label="Property address"
+            value={formData.propertyAddress}
+            onChange={(value) => handleChange("propertyAddress", value)}
+            onSelect={(selectedAddress) => {
+              handleChange("propertyAddress", selectedAddress.formattedAddress);
+            }}
+            required
+            error={errors.propertyAddress}
+            helperText="Please enter the property address."
+            autoComplete="street-address"
           />
-        );
-      } else if (isAddressField(field.id)) {
-        return (
-          <React.Fragment key={field.id}>
-            <GoogleAutocomplete
-              className="mt-16"
-              label={field.label}
-              value={formData[field.id]}
-              onChange={(value) => handleChange(field.id, value, false)}
-              onSelect={(selectedAddress) => {
-                // When user selects an address from suggestions
-                setFormData((prevData) => ({
-                  ...prevData,
-                  [field.id]: selectedAddress.formattedAddress,
-                }));
-                setGoogleAdsAddress((prevData) => ({
-                  ...prevData,
-                  [field.id]: selectedAddress.unformattedAddress,
-                }));
-                // Reset errors if any
-                if (errors[field.id]) {
-                  setErrors({ ...errors, [field.id]: false });
-                }
+          <Input
+            lightTheme
+            label="Property type"
+            type="select"
+            value={formData.propertyType}
+            onChange={(event) => handleChange("propertyType", event)}
+            required
+            isInvalid={errors.propertyType}
+            errorMessage="Please select a property type."
+            options={toOptions(propertyTypes)}
+            multipleValue={false}
+          />
+          <FormControl
+            fullWidth
+            error={Boolean(errors.approximateSize)}
+            className={styles.toggleField}
+          >
+            <Typography variant="h6" component="div">
+              Approximate size
+            </Typography>
+            <ToggleButtonGroup
+              exclusive
+              value={formData.approximateSize}
+              onChange={(event, value) => {
+                if (value) handleChange("approximateSize", value);
               }}
-              required={field.required}
-              autoComplete={field.autoComplete}
-              error={errors[field.id]}
-              helperText={errors[field.id] ? "Please enter a valid address" : ""}
-            />
-          </React.Fragment>
-        );
-      } else {
-        return (
+              className={styles.toggleGroup}
+            >
+              {sizeOptions.map((option) => (
+                <ToggleButton
+                  key={option.value}
+                  value={option.value}
+                  style={{
+                    color:
+                      formData.approximateSize === option.value
+                        ? "#fff"
+                        : "var(--light-primary)",
+                  }}
+                  sx={{
+                    "&.MuiToggleButton-root:hover": {
+                      backgroundColor: "var(--light-primary)",
+                      borderColor: "var(--light-primary)",
+                      color: "#fff !important",
+                    },
+                    "&.MuiToggleButton-root.Mui-selected, &.MuiToggleButton-root.Mui-selected:hover": {
+                      backgroundColor: "var(--light-primary)",
+                      borderColor: "var(--light-primary)",
+                      color: "#fff !important",
+                    },
+                  }}
+                >
+                  {option.label}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+            <FormHelperText>
+              {errors.approximateSize && "Please select an approximate size."}
+            </FormHelperText>
+          </FormControl>
           <Input
-            lightTheme={true}
-            key={index}
-            label={field.label}
-            type={field.type}
-            value={formData[field.id]}
-            onChange={
-              field.type === "chip"
-                ? (newValue) => handleChange(field.id, newValue, field.multiple)
-                : (e) => handleChange(field.id, e, field.multiple)
-            }
-            onBlur={
-              field.required ? () => handleBlur(field.id, field.validation) : null
-            }
-            required={field.required}
-            autoComplete={field.autoComplete}
-            isInvalid={errors[field.id]}
-            errorMessage={field.errorMessage}
-            options={field.options}
-            multipleValue={field.multiple}
-            min={field.range && field.range.min}
-            max={field.range && field.range.max}
-            note={field.note && field.note}
-            id={field.id}
+            lightTheme
+            label="Frequency"
+            type="select"
+            value={formData.frequency}
+            onChange={(event) => handleChange("frequency", event)}
+            required
+            isInvalid={errors.frequency}
+            errorMessage="Please select a frequency."
+            options={toOptions(frequencies)}
+            multipleValue={false}
           />
-        );
-      }
-    });
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Input
+          lightTheme
+          label="Full name"
+          type="text"
+          id="fullName"
+          value={formData.fullName}
+          onChange={(event) => handleChange("fullName", event)}
+          onBlur={() => validateContactField("fullName")}
+          required
+          isInvalid={errors.fullName}
+          errorMessage="Please enter your full name."
+          autoComplete="name"
+        />
+        <Input
+          lightTheme
+          label="Email"
+          type="email"
+          id="email"
+          value={formData.email}
+          onChange={(event) => handleChange("email", event)}
+          onBlur={() => validateContactField("email")}
+          required
+          isInvalid={errors.email}
+          errorMessage="Please enter a valid email address."
+          autoComplete="email"
+        />
+        <Input
+          lightTheme
+          label="Phone"
+          type="tel"
+          id="phone"
+          value={formData.phone}
+          onChange={(event) => handleChange("phone", event)}
+          onBlur={() => validateContactField("phone")}
+          required
+          isInvalid={errors.phone}
+          errorMessage="Please enter a valid phone number."
+          autoComplete="tel"
+        />
+        <FormControl
+          fullWidth
+          error={Boolean(errors.preferredContactMethod)}
+          className={styles.radioField}
+        >
+          <Typography variant="h6" component="div">
+            Preferred contact method
+          </Typography>
+          <RadioGroup
+            row
+            value={formData.preferredContactMethod}
+            onChange={(event) => handleChange("preferredContactMethod", event)}
+          >
+            <FormControlLabel value="Email" control={<Radio />} label="Email" />
+            <FormControlLabel value="Phone" control={<Radio />} label="Phone" />
+          </RadioGroup>
+          <FormHelperText>
+            {errors.preferredContactMethod && "Please choose a contact method."}
+          </FormHelperText>
+        </FormControl>
+        <Input
+          lightTheme
+          label="Anything else you'd like us to know?"
+          type="textarea"
+          id="message"
+          value={formData.message}
+          onChange={(event) => handleChange("message", event)}
+          required={false}
+          isInvalid={false}
+          errorMessage=""
+          autoComplete="off"
+          placeholder="Specific timing, access requirements, compliance needs, etc."
+        />
+        <FormControl error={Boolean(errors.consent)} className={styles.consentField}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.consent}
+                onChange={(event) => handleChange("consent", event.target.checked)}
+              />
+            }
+            label={
+              <>
+                I agree to Darmar Group contacting me about my enquiry and accept
+                the{" "}
+                <Link href="/privacy-policy">Privacy Policy</Link>.
+              </>
+            }
+          />
+          <FormHelperText>
+            {errors.consent && "Please accept before submitting your quote request."}
+          </FormHelperText>
+        </FormControl>
+      </>
+    );
   };
 
   return (
-
     <Container
       variant="div"
       className={`${className} ${styles.multipartFormContainer}`}
       maxWidth="sm"
       id="get-quote-form"
     >
-      <div className={`${styles.formHeader}`} >
-        <div className={`row flex space-between align-start gap-16`}>
-          <div className={`${styles.formTitleWrapper}`}>
-            <Typography variant="h5" component="h2" className={`${styles.formTitle}`} color="var(--light-on-primary-container)">
+      <div className={styles.formHeader}>
+        <div className="row flex space-between align-start gap-16">
+          <div className={styles.formTitleWrapper}>
+            <Typography
+              variant="h5"
+              component="h2"
+              className={styles.formTitle}
+              color="var(--light-on-primary-container)"
+            >
               Get Your Free Quote
             </Typography>
-            <Typography variant="body1" component="p" className={`${styles.formSubtitle} mt-8`} color="var(--dark-on-surface-variant)">
-              Start with your route first. Then we’ll ask a few quick details on the next step.
+            <Typography
+              variant="body1"
+              component="p"
+              className={`${styles.formSubtitle} mt-8`}
+              color="var(--dark-on-surface-variant)"
+            >
+              Tell us what you need and we will prepare the right next step.
             </Typography>
           </div>
-          <div className={`${styles.stepsTextWrapper} flex align-center justify-center flex-column border-radius-8`}>
-            <Typography variant="subtitle1" component="p" className={`${styles.stepsText} `} color="var(--light-inverse-primary)">
+          <div
+            className={`${styles.stepsTextWrapper} flex align-center justify-center flex-column border-radius-8`}
+          >
+            <Typography
+              variant="subtitle1"
+              component="p"
+              className={styles.stepsText}
+              color="var(--light-inverse-primary)"
+            >
               3 quick steps
             </Typography>
           </div>
-
         </div>
 
-        {/* steps  */}
-        <div className={`${styles.stepsContainer} grid space-between gap-16 mb-8`} >
+        <div className={`${styles.stepsContainer} grid space-between gap-16 mb-8`}>
           {STEPS.map((step) => (
-            <div
-              key={step.number}
-              className={`${styles.stepWrapper}  align-center `}
-            >
-              {step.number <= STEPS.length && (
-                <div
-                  className={`${styles.stepLine} `}
-                  style={{
-                    backgroundColor:
-                      currentStep >= step.number ? "#00B0A5" : "#E0E0E0",
-                  }}
-                />
-              )}
-              <div className={`${styles.stepLine} `} />
+            <div key={step.number} className={`${styles.stepWrapper} align-center`}>
+              <div
+                className={styles.stepLine}
+                style={{
+                  backgroundColor:
+                    currentStep >= step.number
+                      ? "var(--dark-surface-tint)"
+                      : "var(--dark-on-primary-container)",
+                }}
+              />
               <Typography
                 variant="body2"
                 sx={{
-                  color: currentStep >= step.number ? "#fff" : "var(--dark-on-surface-variant)",
-                  fontWeight: currentStep >= step.number ? 500 : 400,
+                  color:
+                    currentStep >= step.number
+                      ? "#fff"
+                      : "var(--dark-on-surface-variant)",
+                  fontWeight: currentStep >= step.number ? 600 : 400,
                 }}
               >
                 {step.label}
               </Typography>
-
             </div>
           ))}
         </div>
       </div>
 
-
-      <div className={`${styles.inputContainer} `}>
-        <React.Fragment>
-          <div className={`${styles.inputWrapper}`}>
-            {!hideTitle && (
-             
-
-                <Typography variant="body1" component="h1" className={`${styles.stepTitle} mt-8 mb-8`} >
-                  Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].title}
-                </Typography>
-          
-            )}
-
-            {getStepFormInputs()}
-
-            <div className={`${styles.buttonWrapper} flex gap-8 mt-16 ` } >
-              {currentStep > 1 && (
-                <Button
-                  variant="outlined"
-                  onClick={handlePreviousStep}
-                  size="large"
-                  sx={{flex: 1}}
-                >
-                  Back
-                </Button>
-              )}
-              {currentStep < STEPS.length && (
-                <Button
-                  variant="contained"
-                  onClick={handleNextStep}
-                  size="large"
-                  style={{width: "100%"}}
-                >
-                  Continue
-                </Button>
-              )}
-              {currentStep === STEPS.length && (
-                <Button
-                  variant="contained"
-                  onClick={submitHandler}
-                  loading={isLoading}
-                  size="large"
-                  style={{width: "100%"}}
-                >
-                  Get Free Quote
-                </Button>
-              )}
+      <Box component="form" className={styles.inputContainer} onSubmit={submitHandler}>
+        <div className={styles.inputWrapper}>
+          {!hideTitle && (
+            <div className={styles.stepHeading}>
+              <Typography variant="h5" component="h1" className={styles.stepTitle}>
+                {STEPS[currentStep - 1].title}
+              </Typography>
+              <Typography
+                variant="body2"
+                component="p"
+                className={styles.stepSubtitle}
+                color="var(--light-on-surface-variant)"
+              >
+                {STEPS[currentStep - 1].subtitle}
+              </Typography>
             </div>
-              {currentStep === STEPS.length && (
-                <>
-                         <Button
+          )}
+
+          {renderStepFields()}
+
+          <div className={`${styles.buttonWrapper} flex gap-8 mt-16`}>
+            {currentStep > 1 && (
+              <Button
+                variant="outlined"
+                type="button"
+                onClick={handlePreviousStep}
+                size="large"
+                sx={{ flex: 1 }}
+              >
+                Back
+              </Button>
+            )}
+            {currentStep < STEPS.length && (
+              <Button
+                variant="contained"
+                type="button"
+                onClick={handleNextStep}
+                size="large"
+                style={{ width: "100%" }}
+              >
+                Continue
+              </Button>
+            )}
+            {currentStep === STEPS.length && (
+              <Button
+                variant="contained"
+                type="submit"
+                loading={isLoading}
+                size="large"
+                style={{ width: "100%" }}
+              >
+                Request my quote
+              </Button>
+            )}
+          </div>
+          {currentStep === STEPS.length && (
+            <>
+              <Button
                 variant="text"
-                className="mt-8  align-center"
+                className="mt-8 align-center"
                 style={{
                   width: "100%",
                   display: "flex",
@@ -542,32 +754,24 @@ export default function MultipartForm({
               >
                 Prefer to talk? {process.env.NEXT_PUBLIC_PHONE_NUMBER}
               </Button>
-                <Typography
+              <Typography
                 variant="body1"
                 component="div"
                 className="center-align mt-8"
                 color="secondary"
-               
               >
-                Honest advice • Free Quote • No obligation
+                Honest advice - Free Quote - No obligation
               </Typography>
-                </>
-           
-              ) }
-          
-           
-            
-           
+            </>
+          )}
 
-            {error && (
-              <Alert sx={{ margin: "8px 0", mt: 2 }} severity="error">
-                Something went wrong. Please Try again
-              </Alert>
-            )}
-          </div>
-        </React.Fragment>
-      </div>
+          {error && (
+            <Alert sx={{ margin: "8px 0", mt: 2 }} severity="error">
+              Something went wrong. Please try again.
+            </Alert>
+          )}
+        </div>
+      </Box>
     </Container>
-
   );
 }

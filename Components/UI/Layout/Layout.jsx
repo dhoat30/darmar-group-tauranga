@@ -23,6 +23,8 @@ import ServiceCardsTwoColumn from "./Sections/ServiceCardsTwoColumn/ServiceCards
 import UspAccordionSection from "./Sections/UspAccordionSection/UspAccordionSection";
 import DuctCleaningSection from "./Sections/DuctCleaningSection/DuctCleaningSection";
 import ClientLogosSection from "./Sections/ClientLogosSection/ClientLogosSection";
+import ProblemSection from "./Sections/ProblemSection/ProblemSection";
+import ServicesAccordionSection from "./Sections/ServicesAccordionSection/ServicesAccordionSection";
 export default function Layout({
   uspTable,
   sections,
@@ -83,13 +85,14 @@ export default function Layout({
       return (
         <RowSection
           key={index}
+          eyebrowText={section.eyebrow_text}
           subtitle={section.subtitle}
           title={section.title}
           description={section.description}
           imageAlignment={section.image_alignment}
           image={section.image}
-          ctaGroup={section.cta_group}
-          bulletPoints={section.bullet_points}
+          cta={section.cta}
+          items={section.items}
           accordionData={remappedAccordion}
           showBeforeAfterImages={section.show_before_after_images}
           backgroundColor={section.background_color}
@@ -109,10 +112,36 @@ export default function Layout({
       return (
         <ServicesSection
           key={index}
+          eyebrowText={section.eyebrow_text}
+          
           title={section.title}
           subtitle={section.subtitle}
           description={section.description}
           cards={section.cards}
+        />
+      );
+    }
+    if (section.acf_fc_layout === "services_accordion") {
+      return (
+        <ServicesAccordionSection
+          key={index}
+          eyebrowText={section.eyebrow_text}
+          title={section.title}
+          description={section.description}
+          cards={section.cards}
+        />
+      );
+    }
+    if (section.acf_fc_layout === "problem_section") {
+      return (
+        <ProblemSection
+          key={index}
+          eyebrowText={section.eyebrow_text}
+          title={section.title}
+          description={section.description}
+          subtitle={section.subtitle}
+          cta={section.cta}
+          problemList={section.problem_list}
         />
       );
     }
@@ -165,6 +194,7 @@ export default function Layout({
           key={index}
           title={section.section_title}
           description={section.section_description}
+          eyebrowText={section.eyebrow_text}
           qaData={section.items}
         />
       );

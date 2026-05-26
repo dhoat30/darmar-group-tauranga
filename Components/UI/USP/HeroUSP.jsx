@@ -2,7 +2,7 @@ import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import styles from "./HeroUSP.module.scss";
-export default function HeroUSP({ data, className, twoColumnsGrid }) {
+export default function HeroUSP({ data, className, twoColumnsGrid, centerAlign=false }) {
   if (!data) return;
   console.log("HeroUSP data:", data);
   return (
@@ -30,7 +30,7 @@ export default function HeroUSP({ data, className, twoColumnsGrid }) {
         </div>
       }
 
-      <div className={`${styles.imageUspWrapper}  flex gap-8 align-center flex-wrap`}>
+      <div className={`${styles.imageUspWrapper}  flex gap-8 align-center flex-wrap`} style={{ justifyContent: centerAlign ? "flex-start" : "flex-start" }} >
         {data.image_usp &&
           data.image_usp.map((item, index) => {
             return (

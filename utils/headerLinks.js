@@ -4,6 +4,16 @@ export const headerLinks = [
     label: "Home",
     url: "/",
   },
+     {
+    id: 1,
+    label: "Maintenance Services",
+    url: "/services/maintenance-services",
+  },
+    {
+    id: 1,
+    label: "Commercial Cleaning",
+    url: "/services/commercial-cleaning",
+  },
   // {
   //   id: 1,
   //   label: "Services",

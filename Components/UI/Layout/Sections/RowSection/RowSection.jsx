@@ -8,14 +8,16 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BeforeAfter from "../../../BeforeAfterSlider/BeforeAfter";
 import styles from "./RowSection.module.scss";
 import CustomAccordion from "@/Components/UI/Accordion/CustomAccordion";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import LocalPhoneOutlinedIcon from "@mui/icons-material/LocalPhoneOutlined";
 export default function RowSection({
   title,
-  subtitle,
+  eyebrowText,
   description,
   imageAlignment,
   image,
-  ctaGroup,
-  bulletPoints,
+  cta,
+  items,
   showBeforeAfterImages,
   beforeImage,
   afterImage,
@@ -25,6 +27,9 @@ export default function RowSection({
 }) {
   const imgPadding = (image.height / image.width) * 100;
   const contentAlignment = imageAlignment === "left" ? "2 / 3" : "1 / 2";
+   const ctaLinks = Array.isArray(cta) ? cta : cta ? [{ link: cta }] : [];
+  const quoteCta = ctaLinks[0]?.link;
+  const phoneCta = ctaLinks[1]?.link;
   return (
     <section className={`${styles.section}`} id="services" style={{background: backgroundColor ? backgroundColor : null}}>
       <Container maxWidth="xl">
@@ -33,10 +38,10 @@ export default function RowSection({
             className={`${styles.contentWrapper} `}
             style={{ gridColumn: contentAlignment }}
           >
-            <Typography variant="h6" component="div" className={`${styles.subtitle}`} sx={{color: fontColor}}>
-              {subtitle}
+            <Typography variant="h6" component="div" className={`eyebrow-text `} >
+              {eyebrowText}
             </Typography>
-            <Typography variant="h4" component="h2" className={`${styles.title}`} sx={{color: fontColor}}>
+            <Typography variant="h2" component="h2" className={`${styles.title}`} color="var(--light-primary)" >
               {title}
             </Typography>
 
@@ -45,37 +50,65 @@ export default function RowSection({
               dangerouslySetInnerHTML={{ __html: description }}
               style={{color: "white !important"}}
             />
-
-            {bulletPoints && bulletPoints?.length > 0 &&
-              bulletPoints.map((item, index) => {
+          <div className={`${styles.itemsWrapper} `}>
+            {items && items?.length > 0 &&
+              items.map((item, index) => {
                 return (
                   <div
                     key={index}
-                    className="bullet-point flex align-center gap-8 mt-8"
+                    className="bullet-point flex align-center gap-8 mt-4 mb-4"
                   >
                     <CheckCircleIcon
-                      sx={{ color: "var(--light-on-primary-fixed-variant)" }}
+                      sx={{ color: "var(--light-primary)" }}
                     />
                     <Typography
                       variant="subtitle1"
                       component="span"
-                      color="var(--light-on-primary-fixed-variant)"
+                      color="var(--light-primary)"
+                      className="medium"
                     >
-                      {item.text}
+                      {item.item}
                     </Typography>
                   </div>
                 );
               })}
+              </div> 
       <CustomAccordion qaData = {accordionData}  /> 
-                <div className="button-wrapper mt-16">
-            {ctaGroup?.cta && (
-              <Link href={ctaGroup.cta.url} className="cta mt-16 inline-block">
-                <Button variant={ctaGroup.cta_type} color="primary" sx={{color: `${fontColor && fontColor}`, border: `1px solid ${fontColor && fontColor}`}}>
-                  {ctaGroup.cta.title}
+        
+
+            {(quoteCta || phoneCta) && (
+            <div className={`${styles.ctaWrapper} flex gap-8 align-center mt-24 flex-wrap`}>
+              {quoteCta && (
+                <Button
+                  component={Link}
+                  href={quoteCta.url}
+                  target={quoteCta.target || undefined}
+               
+                  variant="contained"
+                  disableElevation
+                  size="large"
+                  endIcon={<ArrowForwardIcon />}
+                >
+                  {quoteCta.title}
                 </Button>
-              </Link>
-            )}
-            </div> 
+              )}
+
+              {phoneCta && (
+                <Button
+                  component={Link}
+                  href={phoneCta.url}
+                  target={phoneCta.target || undefined}
+                  className={styles.phoneButton}
+                  variant="outlined"
+                  disableElevation
+                  size="large"
+                  startIcon={<LocalPhoneOutlinedIcon />}
+                >
+                  {phoneCta.title}
+                </Button>
+              )}
+            </div>
+          )}
           </div>
 
           {/* image wrapper */}

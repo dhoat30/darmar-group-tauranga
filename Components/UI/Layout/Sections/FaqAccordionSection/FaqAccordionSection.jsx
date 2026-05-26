@@ -3,14 +3,18 @@ import CustomAccordion from "../../../Accordion/CustomAccordion";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import styles from "./FaqAccordionSection.module.scss";
-function FaqAccordionSection({ title, description, qaData }) {
+function FaqAccordionSection({ title, description, qaData, eyebrowText }) {
   if (!qaData) return null;
   return (
     <section className={`${styles.section}`}>
-      <Container maxWidth="md">
-        <div className={`${styles.gridWrapper} `}>
+      <Container maxWidth="lg">
+        <div className={`${styles.gridWrapper} grid`}>
           <div className={`${styles.titleWrapper}`}>
-            <Typography variant="h4" component="h2">
+            <Typography variant="h6" component="div" className={`eyebrow-text`} >
+              {eyebrowText}
+            </Typography>
+
+            <Typography variant="h1" component="h2" color="var(--light-primary)" className={`mt-8 `} >
               {title}
             </Typography>
             <Typography

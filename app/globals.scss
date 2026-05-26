@@ -358,7 +358,7 @@ ul {
   font-weight: 500;
   color: var(--light-on-surface-variant);
   font-size: 1.15rem;
-  line-height: 150%;
+  line-height: 160%;
 
   strong {
     font-weight: 600;
@@ -369,20 +369,22 @@ ul {
 
 .body1,
 .body1 p,
-.body1 strong {
+.body1  {
   margin: 8px 0 8px 0;
   font-weight: 400;
   color: var(--light-on-surface-variant);
   font-family: var(--font-work-sans), Segoe UI, sans-serif;
   font-size: 1rem;
   line-height: 1.5;
+  letter-spacing: -0.02rem;
 }
 
 .body1 strong {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   display: inline-block;
   letter-spacing: 0;
   margin: 0;
+  color: var(--light-on-surface);
 }
 
 .body1 ul {
@@ -404,7 +406,7 @@ ul {
 }
 
 .body1 ul li::before {
-  content: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 81 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40.1202 0C18.0402 0 0.120178 17.92 0.120178 40C0.120178 62.08 18.0402 80 40.1202 80C62.2002 80 80.1202 62.08 80.1202 40C80.1202 17.92 62.2002 0 40.1202 0ZM40.1202 72C22.4802 72 8.12018 57.64 8.12018 40C8.12018 22.36 22.4802 8 40.1202 8C57.7602 8 72.1202 22.36 72.1202 40C72.1202 57.64 57.7602 72 40.1202 72ZM58.4802 22.32L32.1202 48.68L21.7602 38.36L16.1202 44L32.1202 60L64.1202 28L58.4802 22.32Z" fill="%23017069"/></svg>');
+  content: url('data:image/svg+xml,<svg width="20" height="20" viewBox="0 0 81 80" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40.1202 0C18.0402 0 0.120178 17.92 0.120178 40C0.120178 62.08 18.0402 80 40.1202 80C62.2002 80 80.1202 62.08 80.1202 40C80.1202 17.92 62.2002 0 40.1202 0ZM40.1202 72C22.4802 72 8.12018 57.64 8.12018 40C8.12018 22.36 22.4802 8 40.1202 8C57.7602 8 72.1202 22.36 72.1202 40C72.1202 57.64 57.7602 72 40.1202 72ZM58.4802 22.32L32.1202 48.68L21.7602 38.36L16.1202 44L32.1202 60L64.1202 28L58.4802 22.32Z" fill="%231b285c"/></svg>');
   position: absolute;
   top: 2px;
   left: -28px;
@@ -471,6 +473,10 @@ strong {
 }
 
 /* general margin   */
+.mt-4 {
+  margin-top: 4px !important;
+}
+
 .mt-8 {
   margin-top: 8px !important;
 }
@@ -503,6 +509,10 @@ strong {
   margin-top: 64px !important;
 }
 
+
+.mb-4 {
+  margin-bottom: 4px !important;
+}
 
 .mb-8 {
   margin-bottom: 8px !important;
