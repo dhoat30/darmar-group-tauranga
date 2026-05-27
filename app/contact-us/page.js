@@ -74,7 +74,7 @@ export default async function Home() {
         {/* <GoogleReviewsCarousel data={googleReviews} /> */}
       </main>
       <Footer
-        showFooterCta={true}
+        showFooterCta={false}
         className="mt-32"
         footerCtaData={options.footer_cta}
         contactInfo={options.contact_info}

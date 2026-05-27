@@ -10,7 +10,7 @@ export default function HeroUSP({ data, className, twoColumnsGrid, centerAlign=f
       {(data.text_usp && data?.text_usp?.length > 0)
 
         &&
-        <div className={`${styles.textUspWrapper} ${twoColumnsGrid && styles.twoColumnsGrid} flex align-center  usp-wrapper mb-16 `} >
+        <div className={`${styles.textUspWrapper} ${twoColumnsGrid && styles.twoColumnsGrid} flex align-center  usp-wrapper mb-16 `} style={{ justifyContent: centerAlign ? "center" : "flex-start" }} >
           {data.text_usp.map((item, index) => {
 
             return (
@@ -30,7 +30,7 @@ export default function HeroUSP({ data, className, twoColumnsGrid, centerAlign=f
         </div>
       }
 
-      <div className={`${styles.imageUspWrapper}  flex gap-8 align-center flex-wrap`} style={{ justifyContent: centerAlign ? "flex-start" : "flex-start" }} >
+      <div className={`${styles.imageUspWrapper}  flex gap-8 align-center flex-wrap`} style={{ justifyContent: centerAlign ? "center" : "flex-start" }} >
         {data.image_usp &&
           data.image_usp.map((item, index) => {
             return (

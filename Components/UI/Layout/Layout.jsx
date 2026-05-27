@@ -367,7 +367,7 @@ if (section.acf_fc_layout === "landing_page_hero_section"  ) {
           title={section.title}
           description={section.description}
           map={section.map}
-          uspData={section.usp}
+          uspData={section.usp || uspData}
           contactInfo={contactInfo}
           socialData={socialData}
         ></ContactSection>
