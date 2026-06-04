@@ -14,6 +14,16 @@ export const headerLinks = [
     label: "Commercial Cleaning",
     url: "/services/commercial-cleaning",
   },
+  {
+    id: 1,
+    label: "Our Work",
+    url: "/our-work/gallery",
+  },
+   {
+    id: 1,
+    label: "Contact",
+    url: "/contact-us",
+  }
   // {
   //   id: 1,
   //   label: "Services",

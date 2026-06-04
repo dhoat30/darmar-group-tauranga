@@ -381,7 +381,7 @@ ul {
 
 .body1 strong {
   font-weight: 700 !important;
-  display: inline-block;
+ 
   letter-spacing: 0;
   margin: 0;
   color: var(--light-on-surface);
@@ -427,9 +427,9 @@ ul {
 .dark-body1,
 .dark-body1 p,
 .dark-body1  {
-  color: var(--dark-on-surface-variant);
+  color: var(--dark-on-surface-variant) !important;
   strong{ 
-  color: var(--dark-on-surface);
+  color: var(--dark-on-surface) !important;
 
   }
 
@@ -551,7 +551,9 @@ strong {
 .pt-40 {
   padding-top: 40px;
 }
-
+.pb-4 {
+  padding-bottom: 4px;
+}
 .pb-8 {
   padding-bottom: 8px;
 }

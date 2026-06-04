@@ -98,7 +98,7 @@ lineHeight: "140%",
         root: {
           borderRadius: "50px",
           color: "var(--light-on-primary)",
-         padding: "14px 40px",
+         padding: "12px 40px",
           fontSize: "1.1rem",
           textTransform: "inherit",
           boxShadow: "none",

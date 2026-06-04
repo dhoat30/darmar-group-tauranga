@@ -14,6 +14,8 @@ import { headerLinks } from "@/utils/headerLinks";
 import HeaderArrowIcon from "../../Icons/HeaderArrowIcon";
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import PropTypes from 'prop-types';
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import styles from "./DesktopNavbar.module.scss";
 
 function DesktopNavbar(props) {
   const [showMenu, setShowMenu] = useState(-1);
@@ -140,29 +142,28 @@ function DesktopNavbar(props) {
     <ElevationScroll {...props}>
 
     <AppBar
-     className="desktop-navbar"
-   
+      className={styles.section}
       sx={{
         display: { xs: "none", lg: "block" },
         background: "var(--light-surface-container-low)",
       }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters className={"grid-links-wrapper"} sx={{minHeight: "58px !important"}}>
+        <Toolbar disableGutters className={styles.gridLinksWrapper} sx={{minHeight: "58px !important"}}>
           {/* Logo */}
-          <Link href="/">
-                    <Image
-          src="/logo.png"
-          width={128*1.5 }
-          height={35*1.5 }
-          alt="Logo"
-          style={{ cursor: "pointer" }}
-          quality={100}
-          />
+          <Link href="/" className={styles.logoLink}>
+            <Image
+              src="/logo.png"
+              width={192}
+              height={53}
+              alt="Darmar Group"
+              className={styles.logo}
+              priority
+            />
           </Link>
 
           {/* Navigation */}
-          <div className="links-wrapper">
+          <div className={styles.linksWrapper}>
             <Box
               component="ul"
               sx={{
@@ -174,8 +175,8 @@ function DesktopNavbar(props) {
               {menuItems}
             </Box>
             <Link href="/get-free-quote">
-              <Button size="large" variant="contained">
-                GET FREE QUOTE
+              <Button size="large" variant="contained" endIcon={<ArrowForwardIcon />}>
+                Get a Quote
               </Button>
             </Link>
           </div>

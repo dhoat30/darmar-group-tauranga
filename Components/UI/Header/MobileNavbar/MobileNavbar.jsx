@@ -19,6 +19,7 @@ import Typography from "@mui/material/Typography";
 import dynamic from "next/dynamic";
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import PropTypes from 'prop-types';
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 const Drawer = dynamic(() => import("@mui/material/Drawer"));
 
@@ -227,8 +228,9 @@ export default function MobileNavbar(props) {
               className="button"
               onClick={handleDrawerClose}
               sx={{ width: "100%" }}
+                  endIcon={<ArrowForwardIcon />}
             >
-              GET FREE QUOTE
+               Get a Quote   
             </Button>
           </Link>
         </Drawer>

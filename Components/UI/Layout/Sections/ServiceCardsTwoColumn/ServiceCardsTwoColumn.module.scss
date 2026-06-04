@@ -35,6 +35,12 @@
   object-fit: cover;
 }
 
+.beforeAfterWrapper {
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--light-surface-container);
+}
+
 .contentWrapper {
   padding-top: 20px;
 }
@@ -76,5 +82,4 @@
 
  
 }
-
 

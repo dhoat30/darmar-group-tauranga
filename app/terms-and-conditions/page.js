@@ -5,7 +5,7 @@ import { getOptions, getSinglePostData } from '@/utils/fetchData'
 import Header from '@/Components/UI/Header/Header'
 import Footer from '@/Components/UI/Footer/Footer'
 import HtmlPageTemplate from '@/Components/Pages/HtmlPageTemplate/HtmlPageTemplate/HtmlPageTemplate'
-import BreadcrumbHero from '@/Components/UI/Hero/BreadcrumbHero'
+import LegalHero from '@/Components/UI/Hero/LegalHero'
 
 export async function generateMetadata(props, parent) {
     // read route params
@@ -54,10 +54,20 @@ export default async function Contact() {
         <>
             <Header />
             <main>
-                <BreadcrumbHero title={postData[0].title.rendered}/> 
+                <LegalHero
+                    title={postData[0].title.rendered}
+                    description="The terms that apply when using the Darmar Group website and the information published here."
+                />
                 <HtmlPageTemplate pageData={postData[0]} />
             </main>
-            <Footer showFooterCta={false} className="mt-32" footerCtaData={options.footer_cta} contactInfo={options.contact_info} socialData={options.social_links}/>
+            <Footer
+                showFooterCta={false}
+                className="mt-32"
+                footerCtaData={options.footer_cta}
+                contactInfo={options.contact_info}
+                socialData={options.social_links}
+                heroUspData={options.hero_usp}
+            />
         </>
     )
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -8,6 +8,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import BeforeAfter from "../../../BeforeAfterSlider/BeforeAfter";
 import styles from "./ServicesAccordionSection.module.scss";
 
 function normalizeSuitedTo(items) {
@@ -26,15 +27,105 @@ function normalizeSuitedTo(items) {
   return [items].filter(Boolean);
 }
 
+function slugify(value = "") {
+  return value
+    .toString()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function hasImage(image) {
+  return Boolean(image && image.url);
+}
+
+function getImageSrc(image) {
+  return image?.sizes?.large || image?.url;
+}
+
+function getSliderImage(image) {
+  if (!hasImage(image)) return null;
+
+  return {
+    ...image,
+    url: getImageSrc(image),
+  };
+}
+
+function ServiceImage({ item, sizes }) {
+  const beforeImage = getSliderImage(item.before_image || item.beforeImage);
+  const afterImage = getSliderImage(item.image);
+
+  if (!afterImage) return null;
+
+  if (beforeImage) {
+    return (
+      <BeforeAfter
+        showTitle={false}
+        data={{
+          beforeImage,
+          afterImage,
+        }}
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={afterImage.url}
+      alt={afterImage.alt || item.title}
+      fill
+      className={styles.image}
+      sizes={sizes}
+    />
+  );
+}
+
 export default function ServicesAccordionSection({
   eyebrowText,
   title,
   description,
   cards,
 }) {
-  const items = cards || [];
+  console.log("cards", cards)
+  const items = useMemo(
+    () =>
+      (cards || []).map((item) => ({
+        ...item,
+        serviceId: slugify(item.title),
+      })),
+    [cards],
+  );
   const [activeIndex, setActiveIndex] = useState(null);
   const activeItem = activeIndex === null ? items[0] : items[activeIndex];
+
+  useEffect(() => {
+    const openServiceFromHash = () => {
+      const hash = decodeURIComponent(window.location.hash.replace("#", ""));
+      if (!hash) return;
+
+      const nextIndex = items.findIndex(
+        (item) => item.serviceId === hash || `service-${item.serviceId}` === hash,
+      );
+
+      if (nextIndex === -1) return;
+
+      setActiveIndex(nextIndex);
+
+      window.requestAnimationFrame(() => {
+        document.getElementById(items[nextIndex].serviceId)?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    };
+
+    openServiceFromHash();
+    window.addEventListener("hashchange", openServiceFromHash);
+
+    return () => window.removeEventListener("hashchange", openServiceFromHash);
+  }, [items]);
 
   if (items.length === 0) return null;
 
@@ -72,6 +163,7 @@ export default function ServicesAccordionSection({
               return (
                 <Accordion
                   key={index}
+                  id={item.serviceId}
                   expanded={expanded}
                   onChange={(event, isExpanded) =>
                     setActiveIndex(isExpanded ? index : null)
@@ -119,13 +211,7 @@ export default function ServicesAccordionSection({
 
                     {item.image && (
                       <div className={styles.mobileImageWrapper}>
-                        <Image
-                          src={item.image.sizes?.large || item.image.url}
-                          alt={item.image.alt || item.title}
-                          fill
-                          className={styles.image}
-                          sizes="100vw"
-                        />
+                        <ServiceImage item={item} sizes="100vw" />
                       </div>
                     )}
                   </AccordionDetails>
@@ -136,11 +222,8 @@ export default function ServicesAccordionSection({
 
           {activeItem?.image && (
             <div className={styles.desktopImageWrapper}>
-              <Image
-                src={activeItem.image.sizes?.large || activeItem.image.url}
-                alt={activeItem.image.alt || activeItem.title}
-                fill
-                className={styles.image}
+              <ServiceImage
+                item={activeItem}
                 sizes="(max-width: 1000px) 100vw, 50vw"
               />
             </div>

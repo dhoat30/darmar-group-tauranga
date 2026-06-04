@@ -46,6 +46,7 @@
     box-shadow: none;
     border-bottom: 1px solid var(--light-outline-variant);
     color: var(--light-primary);
+    scroll-margin-top: 120px;
 
     &::before {
       display: none;
@@ -163,6 +164,10 @@
           aspect-ratio: 1.25 / 1;
           margin-top: 16px;
         }
+
+        :global(.image-wrapper) {
+          border-radius: 8px;
+        }
       }
     }
   }
@@ -182,6 +187,10 @@
 
     :global(img) {
       position: absolute !important;
+    }
+
+    :global(.image-wrapper) {
+      border-radius: 8px;
     }
   }
 

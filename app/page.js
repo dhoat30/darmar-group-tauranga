@@ -56,7 +56,6 @@ export default async function Home() {
   if (!Array.isArray(data) || data.length === 0) return null;
   const sections = data[0]?.acf?.sections;
   const reviewerPics = options?.review_section_?.reviewer_pics;
-
   return (
     <>
       <Header />
@@ -83,6 +82,7 @@ export default async function Home() {
         footerCtaData={options.footer_cta}
         contactInfo={options.contact_info}
         socialData={options.social_links}
+        heroUspData={options.hero_usp}
       />
     </>
   );
