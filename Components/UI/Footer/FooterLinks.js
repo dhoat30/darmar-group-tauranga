@@ -23,7 +23,7 @@ export const informationLinks = [
     { label: "About Us", url: "/about-us" },
 
     { label: "Contact us", url: "/contact-us" },
-        { label: "Our Work", url: "/our-work" },
+        { label: "Our Work", url: "/our-work/gallery" },
 
     { label: "Privacy policy", url: "/privacy-policy" },
     { label: "Terms and conditions", url: "/terms-and-conditions" },
