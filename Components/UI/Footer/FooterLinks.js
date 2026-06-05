@@ -20,7 +20,6 @@ export const commercialLinks = [
 
 export const informationLinks = [
    
-    { label: "About Us", url: "/about-us" },
 
     { label: "Contact us", url: "/contact-us" },
         { label: "Our Work", url: "/our-work/gallery" },

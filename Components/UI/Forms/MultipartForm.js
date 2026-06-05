@@ -400,9 +400,10 @@ Message: ${formData.message}`,
           <Input
             lightTheme
             label="Cleaning services"
-            type="chip"
+            type="select"
+            id="cleaningServices"
             value={formData.cleaningServices}
-            onChange={(newValue) => handleChange("cleaningServices", newValue)}
+            onChange={(event) => handleChange("cleaningServices", event)}
             required
             isInvalid={errors.services}
             errorMessage="Please select at least one service."
@@ -412,9 +413,10 @@ Message: ${formData.message}`,
           <Input
             lightTheme
             label="Maintenance services"
-            type="chip"
+            type="select"
+            id="maintenanceServices"
             value={formData.maintenanceServices}
-            onChange={(newValue) => handleChange("maintenanceServices", newValue)}
+            onChange={(event) => handleChange("maintenanceServices", event)}
             required
             isInvalid={errors.services}
             errorMessage="Please select at least one service."

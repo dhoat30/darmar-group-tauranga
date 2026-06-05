@@ -38,6 +38,13 @@ const MenuProps = {
   },
 };
 
+const renderSelectedOptions = (selected) => {
+  if (!Array.isArray(selected) || selected.length === 0) return "";
+  if (selected.length <= 2) return selected.join(", ");
+
+  return `${selected.slice(0, 2).join(", ")} +${selected.length - 2} more`;
+};
+
 export default function Input({
   label,
   type,
@@ -99,6 +106,9 @@ export default function Input({
       </FormControl>
     );
   } else if (type === "select") {
+    const labelId = id ? `${id}-label` : "multiple-checkbox-label";
+    const selectId = id || "multiple-checkbox";
+
     return (
       <FormControl
         error={required ? isInvalid : null}
@@ -106,14 +116,14 @@ export default function Input({
      
         fullWidth={true}
       >
-        <InputLabel id="multiple-checkbox-label" sx={{ width: "100%" }}           color={"secondary"}
+        <InputLabel id={labelId} sx={{ width: "100%" }}           color={"secondary"}
 >
           {label}
         </InputLabel>
         <Select
           sx={{ width: "100%" }}
-          labelId="multiple-checkbox-label"
-          id="multiple-checkbox"
+          labelId={labelId}
+          id={selectId}
           multiple={multipleValue}
           value={value}
           onChange={onChange}
@@ -121,7 +131,7 @@ export default function Input({
           color={"secondary"}
           renderValue={
             multipleValue
-              ? (selected) => selected.join(", ")
+              ? renderSelectedOptions
               : (selected) => selected.toString()
           }
           MenuProps={MenuProps}
@@ -237,7 +247,7 @@ export default function Input({
     return (
       <FormControl
         error={required ? isInvalid : null}
-        style={{ marginTop: "16px" }}
+        style={{ marginBottom: "16px" }}
       >
         <Typography variant="h6" component="div">
           {label}
@@ -246,8 +256,8 @@ export default function Input({
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: "16px",
-            marginTop: "16px",
+            gap: "8px",
+            marginTop: "8px",
           }}
         >
           {options.map((option, index) => (
