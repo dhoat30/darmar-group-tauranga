@@ -41,7 +41,7 @@ const nextConfig = {
     ],
     },
     env: {
-        url: "https://gurpreetd16.sg-host.com",
+        url: "https://cms.darmargroup.co.nz",
         siteUrl: baseUrl,
         siteName: siteName,
     },
