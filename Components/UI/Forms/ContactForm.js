@@ -12,12 +12,7 @@ import { useRouter } from "next/navigation";
 import Typography from "@mui/material/Typography";
 import GoogleAutocomplete from "@/Components/GoogleMaps/GoogleAutoComplete";
 import styles from "./FormStyle.module.scss";
-import { useClickIds } from "@/hooks/useClickIds";
-import {
-  createConversionEventId,
-  trackLeadConversion,
-  uploadGoogleAdsConversion,
-} from "@/utils/conversionTracking";
+
 export default function ContactForm({
   className,
   formName = "Get a Quote Form",
@@ -25,7 +20,6 @@ export default function ContactForm({
   hideTitle = false,
 }) {
   const router = useRouter();
-  const { clickIds } = useClickIds();
 
   const [formData, setFormData] = useState({
     firstname: "", // Default empty string to make it controlled
@@ -103,24 +97,10 @@ export default function ContactForm({
       } \nPhone Number: ${formData.phone} \n Message: ${
         formData.message
       } `,
-      hubspotFormID: process.env.NEXT_PUBLIC_HUBSPOT_CONTACT_US,
-      hubspotFormObject: [
-        { name: "firstname", value: formData.firstname },
-        { name: "email", value: formData.email },
-        { name: "phone", value: formData.phone },
-        { name: "message", value: formData.message },
-      ],
     };
 
     setIsLoading(true);
-  
-    // Hubspot config
-    var configHubspot = {
-      method: "post",
-      url: "/api/submit-hubspot-form",
-      headers: { "Content-Type": "application/json" },
-      data: dataPayload,
-    };
+
     // Mailgun config
     var configSendMail = {
       method: "post",
@@ -129,60 +109,14 @@ export default function ContactForm({
       data: dataPayload,
     };
 
-    // const facebookData = {
-    //     method: 'post',
-    //     url: '/api/facebook-conversion-api',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     data: {
-    //         data: {
-    //         event: "Lead",
-    //         firstName: formData.firstname,
-    //         email: formData.email,
-    //         phone: formData.phone,
-    //         county: "Bay of Plenty",
-    //         eventSourceUrl: window.location.href,
-    //         serviceRequested: formData['service'].join(", ")
-    //     }
-
-    //     }
-    // }
-
-    Promise.all([axios(configHubspot), axios(configSendMail)])
+    axios(configSendMail)
       .then(function (response) {
-        if (response[0].status === 200) {
+        if (response.status === 200) {
           setIsLoading(false);
           setIsSuccess(true);
           setNewSubmission(false);
           setError(false);
-          const eventId = createConversionEventId("contact-form");
-          const browserConversion = trackLeadConversion({
-            eventId,
-            formName: "Contact Form",
-            formData: {
-              firstName: formData.firstname,
-              email: formData.email,
-              phone: formData.phone,
-              gclid: clickIds.gclid,
-              gbraid: clickIds.gbraid,
-              wbraid: clickIds.wbraid,
-              fbclid: clickIds.fbclid,
-              fbc: clickIds.fbc,
-              fbp: clickIds.fbp,
-            },
-          });
-          const serverConversion = uploadGoogleAdsConversion({
-            eventId,
-            email: formData.email,
-            phone: formData.phone,
-            gclid: clickIds.gclid,
-            gbraid: clickIds.gbraid,
-            wbraid: clickIds.wbraid,
-          }).catch((error) => {
-            console.error("Google Ads server conversion failed", error);
-          });
-          Promise.allSettled([browserConversion, serverConversion]).finally(() => {
-            router.push("/form-submitted/thank-you");
-          });
+          router.push("/form-submitted/thank-you");
         } else {
           setIsLoading(false);
           setIsSuccess(false);

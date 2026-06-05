@@ -4,6 +4,10 @@ import { NextResponse } from 'next/server'
 const DOMAIN = process.env.MAILGUN_DOMAIN;
 const API_KEY = process.env.MAILGUN_API_KEY;
 const EMAIL_TO = process.env.EMAIL_TO;
+const EMAIL_FROM = process.env.MAILGUN_FROM_EMAIL || `Darmar Group <website@${DOMAIN}>`;
+
+const isValidEmail = (value) => /\S+@\S+\.\S+/.test(String(value || "").trim());
+
 export async function GET(req, res) {
   const response = await res.json();
 
@@ -13,14 +17,24 @@ export async function GET(req, res) {
 export async function POST(req, res) {
   const { email, message, formName } = await req.json();
 
+  if (!DOMAIN || !API_KEY || !EMAIL_TO) {
+    return NextResponse.json(
+      { message: "Mailgun is not configured", success: false },
+      { status: 500 }
+    );
+  }
+
   // Mailgun API endpoint
   const url = `https://api.mailgun.net/v3/${DOMAIN}/messages`;
   // Prepare the form data as URL encoded
   const formData = new URLSearchParams();
-  formData.append('from', email);
+  formData.append('from', EMAIL_FROM);
   formData.append('to', EMAIL_TO );
-  formData.append('subject', formName);
+  formData.append('subject', formName || "New website form submission");
   formData.append('text', `${message}`);
+  if (isValidEmail(email)) {
+    formData.append('h:Reply-To', email);
+  }
 
 
   try {
@@ -32,8 +46,7 @@ export async function POST(req, res) {
       },
       body: formData
     });
-console.log(response)
-const data = await response.json();
+    const data = await response.json();
 
     // Check if the request was successful
     if (!response.ok) {
@@ -47,7 +60,6 @@ const data = await response.json();
 
   } catch (error) {
     console.error(error);
-    const err = await error.json();
-    return NextResponse.json({ message: err, success: false }, {status: 400});
+    return NextResponse.json({ message: "Unable to send email", success: false }, {status: 400});
   }
 };

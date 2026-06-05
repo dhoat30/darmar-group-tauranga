@@ -1,37 +1,117 @@
 /** @type {import('next-sitemap').IConfig} */
 
-const isProd = process.env.NODE_ENV === 'production';
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.SITE_URL ||
+  "https://darmargroup.co.nz";
 
-const getData = async (endpoint, urlPrefix) => {
-    try {
-        const fetchData = await fetch(endpoint);
-        const data = await fetchData.json();
-        return data.map(post => `/${urlPrefix}/${post.slug}`);
-    } catch (error) {
-        console.error(`Failed to fetch data from ${endpoint}:`, error);
-        return [];
-    }
+const WORDPRESS_URL =
+  process.env.WORDPRESS_URL ||
+  process.env.WP_URL ||
+  process.env.CMS_URL ||
+  process.env.url ||
+  "https://cms.darmargroup.co.nz";
+
+const normaliseUrl = (value) => String(value || "").replace(/\/$/, "");
+
+const WORDPRESS_API_BASE = `${normaliseUrl(WORDPRESS_URL)}/wp-json/wp/v2`;
+
+const PAGE_ROUTE_MAP = {
+  home: ["/"],
+  "contact-us": ["/contact-us"],
+  gallery: ["/our-work/gallery"],
+  "get-free-quote": ["/get-free-quote"],
+  "privacy-policy": ["/privacy-policy"],
+  "terms-and-conditions": ["/terms-and-conditions"],
+  "commercial-cleaning": ["/services/commercial-cleaning"],
+  "maintenance-services": ["/services/maintenance-services"],
 };
 
-// const getBlogsData = () => getData('https://cms.liftandshiftmovers.com.au/wp-json/wp/v2/posts?acf_format=standard&per_page=100', "blogs");
-const getLocalRemovalists = () => getData('https://cms.primemovers.co.nz/wp-json/wp/v2/removalists?acf_format=standard&per_page=100', "movers");
-const getInterstateRemovalists = () => getData('https://cms.primemovers.co.nz/wp-json/wp/v2/intercity-movers?acf_format=standard&per_page=100', "intercity-movers");
+const EXCLUDED_PATHS = [
+  "/thank-you",
+  "/order-received",
+  "/checkout",
+  "/form-submitted/thank-you",
+  "/gallery",
+  "/manifest.webmanifest",
+];
+
+async function getWordPressPages(page = 1, allPages = []) {
+  const endpoint = new URL(`${WORDPRESS_API_BASE}/pages`);
+  endpoint.searchParams.set("status", "publish");
+  endpoint.searchParams.set("per_page", "100");
+  endpoint.searchParams.set("page", String(page));
+  endpoint.searchParams.set("_fields", "slug,modified_gmt");
+
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(`WordPress pages request failed: ${response.status}`);
+  }
+
+  const pages = await response.json();
+  const nextPages = [...allPages, ...pages];
+  const totalPages = Number(response.headers.get("x-wp-totalpages") || 1);
+
+  if (page < totalPages) {
+    return getWordPressPages(page + 1, nextPages);
+  }
+
+  return nextPages;
+}
+
+function getPageRoutes(page) {
+  return PAGE_ROUTE_MAP[page.slug] || [];
+}
 
 module.exports = {
-    siteUrl: isProd ? 'https://primemovers.co.nz' : 'http://localhost:3000',
-    generateRobotsTxt: true,
-    sitemapSize: 1000,
-    exclude: [ '/thank-you', '/order-received', '/checkout', '/form-submitted/thank-you'],
-    additionalPaths: async (config) => {
-        // const blogUrls = await getBlogsData();
-        const localRemovalists = await getLocalRemovalists();
-        const interstateRemovalists = await getInterstateRemovalists();
+  siteUrl: normaliseUrl(SITE_URL),
+  generateRobotsTxt: true,
+  sitemapSize: 1000,
+  changefreq: "daily",
+  priority: 0.7,
+  autoLastmod: true,
+  exclude: EXCLUDED_PATHS,
+  transform: async (config, path) => {
+    if (EXCLUDED_PATHS.includes(path)) {
+      return null;
+    }
 
-        // Return all generated URLs for sitemap
-        return [
-            // ...await Promise.all(blogUrls.map(url => config.transform(config, url))),
-            ...await Promise.all(localRemovalists.map(url => config.transform(config, url))),
-            ...await Promise.all(interstateRemovalists.map(url => config.transform(config, url))),
-        ];
-    },
+    return {
+      loc: path,
+      changefreq: config.changefreq,
+      priority: config.priority,
+      lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
+      alternateRefs: config.alternateRefs ?? [],
+    };
+  },
+  additionalPaths: async (config) => {
+    try {
+      const pages = await getWordPressPages();
+      const seen = new Set();
+
+      const entries = pages.flatMap((page) =>
+        getPageRoutes(page).map((path) => ({ path, modified: page.modified_gmt }))
+      );
+
+      return Promise.all(
+        entries
+          .filter(({ path }) => {
+            if (seen.has(path)) return false;
+            seen.add(path);
+            return true;
+          })
+          .map(async ({ path, modified }) => {
+            const entry = await config.transform(config, path);
+            return {
+              ...entry,
+              lastmod: modified ? new Date(`${modified}Z`).toISOString() : entry.lastmod,
+            };
+          })
+      );
+    } catch (error) {
+      console.error("Failed to fetch WordPress pages for sitemap:", error);
+      return [];
+    }
+  },
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Input from "./InputFields/Input";
 import { getQuoteFormData } from "@/utils/getQuoteFormData";
 import { servicePropertyMap } from "@/utils/getQuoteFormData"; // Import the service mapping
@@ -14,13 +14,7 @@ import Typography from "@mui/material/Typography";
 import GoogleAutocomplete from "@/Components/GoogleMaps/GoogleAutoComplete";
 import styles from "./FormStyle.module.scss";
 import dayjs from "dayjs";
-import { useClickIds } from "@/hooks/useClickIds";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
-import {
-  createConversionEventId,
-  trackLeadConversion,
-  uploadGoogleAdsConversion,
-} from "@/utils/conversionTracking";
 
 export default function GetQuoteForm({
   className,
@@ -46,12 +40,7 @@ export default function GetQuoteForm({
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [newSubmission, setNewSubmission] = useState(false);
-  const [googleAdsAddress, setGoogleAdsAddress] = useState({
-    pickUpAddress: {},
-    dropOffAddress: {},
-  }); // For Google Ads conversion tracking
-  // click id
-  const { clickIds } = useClickIds();
+
   const handleChange = (id, value, isSelectMultiple) => {
     let newValue = value.target ? value.target.value : value;
 
@@ -103,10 +92,6 @@ export default function GetQuoteForm({
       return; // Stop the function if any field is invalid o  r empty
     }
 
-    const parts = formData.firstname.trim().split(/\s+/); // split by any whitespace
-    const firstName = parts[0] || "";
-    const lastName = parts.slice(1).join(" ") || ""; // everything after firstName
-
     let formattedDate = dayjs(formData.datePicker).valueOf();
 
     const dataPayload = {
@@ -122,52 +107,9 @@ export default function GetQuoteForm({
        \nServices Required: ${formData["service"].join(", ")} \n Message: ${
          formData.message
        } `,
-      hubspotFormID: process.env.NEXT_PUBLIC_HUBSPOT_GET_QUOTE_FORM_ID,
-      hubspotFormObject: [
-        { name: "hs_google_click_id", value: clickIds.gclid || "" },
-        { name: "gbraid", value: clickIds.gbraid || "" },
-        { name: "wbraid", value: clickIds.wbraid || "" },
-        { name: "gads_campaign_id", value: clickIds.gads_campaign_id || "" },
-        { name: "gads_adgroup_id", value: clickIds.gads_adgroup_id || "" },
-        { name: "gads_ad_id", value: clickIds.gads_ad_id || "" },
-        { name: "campaign_name", value: clickIds.campaign_name || "" },
-        { name: "adgroup_name", value: clickIds.adgroup_name || "" },
-        { name: "ad_name", value: clickIds.ad_name || "" },
-        { name: "utm_term", value: clickIds.utm_term || "" },
-        { name: "utm_matchtype", value: clickIds.utm_matchtype || "" },
-        { name: "utm_network", value: clickIds.utm_network || "" },
-        { name: "utm_device", value: clickIds.utm_device || "" },
-        { name: "utm_content", value: clickIds.utm_content || "" },
-        { name: "utm_source", value: clickIds.utm_source || "" },
-        { name: "hs_facebook_click_id", value: clickIds.fbclid || "" },
-        { name: "fbp", value: clickIds.fbp || "" },
-        { name: "fbc", value: clickIds.fbc || "" },
-        { name: "fb_campaign_id", value: clickIds.fb_campaign_id || "" },
-        { name: "fb_platform", value: clickIds.fb_platform || "" },
-        { name: "fb_ad_id", value: clickIds.fb_ad_id || "" },
-        { name: "fb_adset_id", value: clickIds.fb_adset_id || "" },
-        { name: "fb_site_source", value: clickIds.fb_site_source || "" },
-
-        { name: "firstname", value: formData.firstname },
-        { name: "email", value: formData.email },
-        { name: "phone", value: formData.phone },
-        { name: "pick_up_address", value: formData.pickUpAddress },
-        { name: "drop_off_address", value: formData.dropOffAddress },
-        { name: "property_type", value: formData.propertyType },
-        { name: "move_date", value: "null" },
-        { name: "services_required", value: formData["service"].join(", ") },
-        { name: "message", value: formData.message },
-      ],
     };
     setIsLoading(true);
 
-    // Hubspot config
-    var configHubspot = {
-      method: "post",
-      url: "/api/submit-hubspot-form",
-      headers: { "Content-Type": "application/json" },
-      data: dataPayload,
-    };
     // Mailgun config
     var configSendMail = {
       method: "post",
@@ -176,65 +118,15 @@ export default function GetQuoteForm({
       data: dataPayload,
     };
 
-    // const facebookData = {
-    //     method: 'post',
-    //     url: '/api/facebook-conversion-api',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     data: {
-    //         data: {
-    //         event: "Lead",
-    //         firstName: formData.firstname,
-    //         email: formData.email,
-    //         phone: formData.phone,
-    //         county: "Bay of Plenty",
-    //         eventSourceUrl: window.location.href,
-    //         serviceRequested: formData['service'].join(", ")
-    //     }
-
-    //     }
-    // }
-
-    Promise.all([axios(configHubspot), axios(configSendMail)])
+    axios(configSendMail)
       .then(function (response) {
         console.log(response);
-        if (response[0].status === 200) {
+        if (response.status === 200) {
           setIsLoading(false);
           setIsSuccess(true);
           setNewSubmission(false);
           setError(false);
-          const eventId = createConversionEventId("moving-quote");
-          const browserConversion = trackLeadConversion({
-            eventId,
-            formName: "Moving Quote",
-            formData: {
-              firstName: firstName,
-              email: formData.email,
-              phone: formData.phone,
-              street: `${googleAdsAddress.pickUpAddress.streetNumber || ""} ${googleAdsAddress.pickUpAddress.streetName || ""}`.trim(),
-              city: googleAdsAddress.pickUpAddress.city,
-              region: googleAdsAddress.pickUpAddress.region,
-              postCode: googleAdsAddress.pickUpAddress.postalCode,
-              gclid: clickIds.gclid,
-              gbraid: clickIds.gbraid,
-              wbraid: clickIds.wbraid,
-              fbclid: clickIds.fbclid,
-              fbc: clickIds.fbc,
-              fbp: clickIds.fbp,
-            },
-          });
-          const serverConversion = uploadGoogleAdsConversion({
-            eventId,
-            email: formData.email,
-            phone: formData.phone,
-            gclid: clickIds.gclid,
-            gbraid: clickIds.gbraid,
-            wbraid: clickIds.wbraid,
-          }).catch((error) => {
-            console.error("Google Ads server conversion failed", error);
-          });
-          Promise.allSettled([browserConversion, serverConversion]).finally(() => {
-            router.push("/form-submitted/thank-you");
-          });
+          router.push("/form-submitted/thank-you");
         } else {
           setIsLoading(false);
           setIsSuccess(false);
@@ -297,15 +189,11 @@ export default function GetQuoteForm({
             onChange={(value) => handleChange(field.id, value, false)}
             onSelect={(selectedAddress) => {
               // When user selects an address from suggestions
-              setFormData((prevData) => ({
-                ...prevData,
-                [field.id]: selectedAddress.formattedAddress,
-              }));
-              setGoogleAdsAddress((prevData) => ({
-                ...prevData,
-                [field.id]: selectedAddress.unformattedAddress,
-              })); // Set the address for Google Ads conversion tracking
-              // Reset errors if any
+                setFormData((prevData) => ({
+                  ...prevData,
+                  [field.id]: selectedAddress.formattedAddress,
+                }));
+                // Reset errors if any
               if (errors[field.id]) {
                 setErrors({ ...errors, [field.id]: false });
               }

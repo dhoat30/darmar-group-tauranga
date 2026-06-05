@@ -44,7 +44,7 @@ const cardClickHandler = () => {
   attributes,
   }));
 
-  // Keep UTMs/gclid, add only lightweight params for prefill
+  // Preserve existing query params and add only lightweight params for prefill.
   sp.set("routeId", id);
 
 
