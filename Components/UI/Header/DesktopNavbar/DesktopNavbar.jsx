@@ -1,7 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -19,46 +18,27 @@ import styles from "./DesktopNavbar.module.scss";
 
 function DesktopNavbar(props) {
   const [showMenu, setShowMenu] = useState(-1);
-  const menuRef = useRef(null);
   const pathname = usePathname();
 
   const isActive = (path) => pathname === path;
-
-  // useEffect(() => {
-  //   function handleClickOutside(event) {
-  //     if (menuRef.current && !menuRef.current.contains(event.target)) {
-  //       setShowMenu(-1)
-  //     }
-  //   }
-  //   document.addEventListener('mousedown', handleClickOutside)
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside)
-  //   }
-  // }, [])
 
   const menuItems = headerLinks.map((item, index) => {
     const isOpen = showMenu === index;
 
     return (
-      <Box
-        className="link"
-        component="li"
+      <li
+        className={styles.link}
         key={index}
-        ref={menuRef}
-        sx={{ color: "white", display: "block", position: "relative" }}
         onMouseEnter={() => setShowMenu(index)}
         onMouseLeave={() => setShowMenu(-1)}
       >
-        <Box
-          className="nav-trigger"
-          sx={{ display: "flex", alignItems: "center" }}
-        >
+        <div className={styles.navTrigger}>
           {!item.subLinks ? (
             <Link
               href={item.url}
-              className={isActive(item.url) ? "active" : ""}
+              className={`${styles.navLink} ${isActive(item.url) ? styles.active : ""}`}
             >
-              <Typography component="span" variant="body1" align="center">
+              <Typography component="span" variant="body1" className={styles.navText}>
                 {item.label}
               </Typography>
             </Link>
@@ -66,35 +46,22 @@ function DesktopNavbar(props) {
             <Typography
               component="span"
               variant="body1"
-              align="center"
-              className="nav-parent"
+              className={`${styles.navText} ${styles.navParent}`}
             >
               {item.label}
             </Typography>
           )}
 
           {item.subLinks && (
-            <HeaderArrowIcon className={`arrow ${isOpen ? "rotate" : ""}`} />
-            // <KeyboardArrowDownRoundedIcon
-
-            // />
+            <HeaderArrowIcon className={`${styles.arrow} ${isOpen ? styles.rotate : ""}`} />
           )}
-        </Box>
+        </div>
 
         {item.subLinks && (
           <Paper
             component="ul"
             variant="outlined"
-            className="sublinks-container"
-            sx={
-              {
-                gridTemplateColumns: item.gridTemplateColumn || "1fr",
-                width: item.width || "auto",
-                pointerEvents: isOpen ? 'auto' : 'none',
-                transform: isOpen ? 'scaleY(1)' : 'scaleY(0)', 
-                opacity: isOpen ? 1 : 0
-              }
-            }
+            className={`${styles.sublinksContainer} ${isOpen ? styles.sublinksOpen : ""}`}
           >
             {item.subLinks.map((subLink, subIndex) => (
               <li key={subIndex}>
@@ -105,7 +72,7 @@ function DesktopNavbar(props) {
                 >
                   {subLink.graphic && (
                     <Image
-                      className="icon-wrapper border-radius-8"
+                      className={`${styles.iconWrapper} border-radius-8`}
                       src={subLink.graphic}
                       alt={subLink.label}
                       width="48"
@@ -113,16 +80,16 @@ function DesktopNavbar(props) {
                       quality={100}
                     />
                   )}
-                  <div className="label-wrapper">
+                  <div className={styles.labelWrapper}>
                     <Typography
-                      className="subLink"
+                      className={styles.subLink}
                       component="span"
                       variant="subtitle1"
                     >
                       {subLink.label}
                     </Typography>
                     <Typography
-                      className="subLink"
+                      className={styles.subLink}
                       component="span"
                       variant="body2"
                     >
@@ -134,7 +101,7 @@ function DesktopNavbar(props) {
             ))}
           </Paper>
         )}
-      </Box>
+      </li>
     );
   });
 
@@ -143,39 +110,26 @@ function DesktopNavbar(props) {
 
     <AppBar
       className={styles.section}
-      sx={{
-        display: { xs: "none", lg: "block" },
-        background: "var(--light-surface-container-low)",
-      }}
     >
       <Container maxWidth="xl">
-        <Toolbar disableGutters className={styles.gridLinksWrapper} sx={{minHeight: "58px !important"}}>
-          {/* Logo */}
+        <Toolbar disableGutters className={styles.gridLinksWrapper}>
           <Link href="/" className={styles.logoLink}>
             <Image
               src="/logo.png"
-              width={192}
-              height={53}
+              width={184}
+              height={51}
               alt="Darmar Group"
               className={styles.logo}
               priority
             />
           </Link>
 
-          {/* Navigation */}
           <div className={styles.linksWrapper}>
-            <Box
-              component="ul"
-              sx={{
-                display: { xs: "none", md: "flex" },
-                alignItems: "center",
-                margin: 0,
-              }}
-            >
+            <ul className={styles.navList}>
               {menuItems}
-            </Box>
-            <Link href="/get-free-quote">
-              <Button size="large" variant="contained" endIcon={<ArrowForwardIcon />}>
+            </ul>
+            <Link href="/get-free-quote" className={styles.ctaLink}>
+              <Button size="large" variant="contained" endIcon={<ArrowForwardIcon />} className={styles.ctaButton}>
                 Get a Quote
               </Button>
             </Link>

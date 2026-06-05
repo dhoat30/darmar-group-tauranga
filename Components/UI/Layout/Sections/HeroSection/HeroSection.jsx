@@ -72,7 +72,8 @@ export default function HeroSection({
                   component={Link}
                   href={quoteCta.url}
                   target={quoteCta.target || undefined}
-               
+                                 className={styles.quoteButton}
+
                   variant="contained"
                   disableElevation
                   size="large"
