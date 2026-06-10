@@ -267,7 +267,7 @@ export default function GetQuoteForm({
                 variant="contained"
                 className="mt-16 full-width"
               >
-                Get Free Moving Quote
+                Get Free Quote
               </Button>
               <Button
                 variant="text"
