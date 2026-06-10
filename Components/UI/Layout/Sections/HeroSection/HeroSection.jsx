@@ -4,7 +4,6 @@ import Button from "@mui/material/Button";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import LocalPhoneOutlinedIcon from "@mui/icons-material/LocalPhoneOutlined";
 import Link from "next/link";
-import HeroUSPBox from "@/Components/UI/USP/HeroUSPBox";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
 import Container from "@mui/material/Container";
@@ -23,7 +22,6 @@ export default function HeroSection({
   const phoneCta = ctaLinks[1]?.link;
 
   let graphic;
-  console.log("graphicData in HeroSection:", graphicType);
   if (graphicType === "image") {
     graphic = (
       <div
@@ -35,7 +33,7 @@ export default function HeroSection({
           alt={graphicData.alt || title}
           fill
           className={`${styles.image}`}
-          loading="lazy"
+          priority
         />
       </div>
     );

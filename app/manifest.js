@@ -2,7 +2,7 @@ export default function manifest() {
   return {
     name: "Darmar Group",
     short_name: "Darmar Group",
-    description: "Darmar Group moving services in New Zealand.",
+    description: "Darmar Group — commercial cleaning and maintenance services in New Zealand.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

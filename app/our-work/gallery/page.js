@@ -8,10 +8,9 @@ import {
 import Footer from "@/Components/UI/Footer/Footer";
 import GallerySection from "@/Components/UI/Gallery/GallerySection";
 
-export async function generateMetadata(props, parent) {
-  // read route params
+const PAGE_URL = "https://darmargroup.co.nz/our-work/gallery";
 
-  // fetch data
+export async function generateMetadata(_props, parent) {
   const data = await getSinglePostData("gallery", "/wp-json/wp/v2/pages");
 
   if (Array.isArray(data) && data.length > 0) {
@@ -20,10 +19,13 @@ export async function generateMetadata(props, parent) {
       title: seoData?.title,
       description: seoData?.description,
       metadataBase: new URL(process.env.siteUrl),
+      alternates: {
+        canonical: PAGE_URL,
+      },
       openGraph: {
         title: seoData?.title,
         description: seoData?.description,
-        url: process.env.siteUrl,
+        url: PAGE_URL,
         siteName: process.env.siteName,
         images: [
           {

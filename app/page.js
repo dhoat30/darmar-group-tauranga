@@ -4,31 +4,30 @@ import Header from "@/Components/UI/Header/Header";
 import {
   getSinglePostData,
   getOptions,
-  getHubspotContacts,
 } from "@/utils/fetchData";
 import Footer from "@/Components/UI/Footer/Footer";
 import Layout from "@/Components/UI/Layout/Layout";
 import reviewsData from "@/data/google-reviews.json";
 
-//run to get reviews GOOGLE_PLACE_ID="ChIJzwMvbrByAGERbQ9N2-JlDfg" SERPAPI_API_KEY="bcc06d6e7ad003a94e56f47ae6467cdba75de324e5c92957b10e479e5edbe38b" npm run sync:reviews
-export async function generateMetadata(props, parent) {
-  // read route params
+const PAGE_URL = "https://darmargroup.co.nz";
 
-  // fetch data
+export async function generateMetadata(_props, parent) {
   const data = await getSinglePostData("home", "wp-json/wp/v2/pages");
 
-  // optionally access and extend (rather than replace) parent metadata
-  const previousImages = (await parent).openGraph?.images || [];
+  await parent;
   if (Array.isArray(data) && data.length > 0) {
     const seoData = data[0].yoast_head_json;
     return {
       title: seoData?.title,
       description: seoData?.description,
       metadataBase: new URL(process.env.siteUrl),
+      alternates: {
+        canonical: PAGE_URL,
+      },
       openGraph: {
         title: seoData?.title,
         description: seoData?.description,
-        url: process.env.siteUrl,
+        url: PAGE_URL,
         siteName: process.env.siteName,
         images: [
           {
@@ -51,8 +50,6 @@ export async function generateMetadata(props, parent) {
 export default async function Home() {
   const data = await getSinglePostData("home", "wp-json/wp/v2/pages");
   const options = await getOptions();
-  console.log("options ", options);
-  // const googleReviews = await getGoogleReviews()
   if (!Array.isArray(data) || data.length === 0) return null;
   const sections = data[0]?.acf?.sections;
   const reviewerPics = options?.review_section_?.reviewer_pics;
@@ -73,8 +70,6 @@ export default async function Home() {
           servicesData={options.services}
           reviewerPics={reviewerPics}
         />
-
-        {/* <USP showTitle={true} statsArray={options.stats.items} cards={options.usp.items} title={options.usp.section_title} description={options.usp.section_description} /> */}
       </main>
       <Footer
         showFooterCta={false}

@@ -5,8 +5,8 @@ export const services = [
   
       },
         {
-        label: "Commercial Maintenance",
-        url: "/services/commercial-maintenance",
+        label: " Maintenance Services",
+        url: "/services/maintenance-services",
   
       },
           { label: "Get a free quote", url: "/get-free-quote" },

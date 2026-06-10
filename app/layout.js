@@ -1,14 +1,8 @@
-//import css file 
+//import css file
 import './globals.scss'
 import './tokens.css'
-// Import slick css files
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
 import { Plus_Jakarta_Sans, Inter } from 'next/font/google'
-// import {AppRouterCacheProvider} from "@mui/material-nextjs/v15-appRouter"
 import ClientProvider from '@/Providers/ClientProvider';
-
-// fonts settings
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -26,20 +20,35 @@ const inter = Inter({
   preload: true
 })
 
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Darmar Group',
+  url: 'https://darmargroup.co.nz',
+  logo: {
+    '@type': 'ImageObject',
+    url: 'https://darmargroup.co.nz/logo.png',
+  },
+  sameAs: [
+    'https://www.facebook.com/darmargroup',
+  ],
+}
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" >
+    <html lang="en-NZ" >
       <head>
         <link rel="preconnect" href="https://cms.darmargroup.co.nz" />
         <link rel="dns-prefetch" href="https://cms.darmargroup.co.nz" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
       </head>
-              <body className={`${plusJakartaSans.variable} ${inter.variable}`}>
-        {/* <AppRouterCacheProvider> */}
-      <ClientProvider>
+      <body className={`${plusJakartaSans.variable} ${inter.variable}`}>
+        <ClientProvider>
           {children}
         </ClientProvider>
-        {/* </AppRouterCacheProvider> */}
       </body>
     </html>
   )

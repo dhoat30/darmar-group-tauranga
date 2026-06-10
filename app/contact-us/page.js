@@ -3,31 +3,31 @@ export const revalidate = 2592000; // applies to both page and metadata
 import Header from "@/Components/UI/Header/Header";
 import {
   getSinglePostData,
-  getGoogleReviews,
   getOptions,
 } from "@/utils/fetchData";
 import Footer from "@/Components/UI/Footer/Footer";
 import Layout from "@/Components/UI/Layout/Layout";
 import reviewsData from "@/data/google-reviews.json";
 
-export async function generateMetadata(props, parent) {
-  // read route params
+const PAGE_URL = "https://darmargroup.co.nz/contact-us";
 
-  // fetch data
+export async function generateMetadata(_props, parent) {
   const data = await getSinglePostData("contact-us", "/wp-json/wp/v2/pages");
 
-  // optionally access and extend (rather than replace) parent metadata
-  const previousImages = (await parent).openGraph?.images || [];
+  await parent;
   if (Array.isArray(data) && data.length > 0) {
     const seoData = data[0].yoast_head_json;
     return {
       title: seoData?.title,
       description: seoData?.description,
       metadataBase: new URL(process.env.siteUrl),
+      alternates: {
+        canonical: PAGE_URL,
+      },
       openGraph: {
         title: seoData?.title,
         description: seoData?.description,
-        url: process.env.siteUrl,
+        url: PAGE_URL,
         siteName: process.env.siteName,
         images: [
           {
@@ -50,7 +50,6 @@ export async function generateMetadata(props, parent) {
 export default async function Home() {
   const data = await getSinglePostData("contact-us", "/wp-json/wp/v2/pages");
   const options = (await getOptions()) || {};
-  // const googleReviews = await getGoogleReviews()
   if (!Array.isArray(data) || data.length === 0) return null;
   const sections = data[0]?.acf?.sections;
   return (
@@ -67,12 +66,8 @@ export default async function Home() {
           hoursCalculatorData={options.hours_calculator}
           contactInfo={options.contact_info}
           socialData={options.social_links}
-        heroUspData={options.hero_usp}
+          heroUspData={options.hero_usp}
         />
-        {/* <Layout sections={postData[0]?.acf?.sections} /> */}
-        {/* <USP showTitle={true} statsArray={options.stats.items} cards={options.usp.items} title={options.usp.section_title} description={options.usp.section_description} /> */}
-
-        {/* <GoogleReviewsCarousel data={googleReviews} /> */}
       </main>
       <Footer
         showFooterCta={false}

@@ -1,5 +1,32 @@
-# *
+# Allow all standard crawlers
 User-agent: *
+Allow: /
+
+# Disallow internal/utility paths
+Disallow: /form-submitted/
+Disallow: /api/
+
+# AI training crawlers — block model training, allow search/browsing
+User-agent: GPTBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# Allow ChatGPT browsing and Perplexity (drives referral traffic)
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
 Allow: /
 
 # Host

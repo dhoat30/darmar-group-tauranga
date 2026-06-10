@@ -598,7 +598,7 @@ Message: ${formData.message}`,
         <div className={styles.inputWrapper}>
           {!hideTitle && (
             <div className={styles.stepHeading}>
-              <Typography variant="h5" component="h1" className={styles.stepTitle}>
+              <Typography variant="h5" component="h3" className={styles.stepTitle}>
                 {STEPS[currentStep - 1].title}
               </Typography>
               <Typography

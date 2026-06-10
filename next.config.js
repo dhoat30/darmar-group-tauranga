@@ -1,10 +1,10 @@
 const { siteUrl } = require('./next-sitemap.config');
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
     (process.env.NODE_ENV === "production" ? "https://darmargroup.co.nz" : "http://localhost:3000");
     const siteName = "Darmar Group"
 
-// bundle analyzer 
+// bundle analyzer
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
     enabled: process.env.ANALYZE === 'true',
 })
@@ -12,13 +12,14 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfigp} */
 const nextConfig = {
 
+
     compiler: {
         // Enables the styled-components SWC transform
         styledComponents: true
     },
     images: {
-       
-     
+
+
         remotePatterns: [{
             protocol: 'https',
             hostname: 'cms.darmargroup.co.nz',
@@ -37,7 +38,7 @@ const nextConfig = {
             port: '',
             pathname: '/**'
         }
-        
+
     ],
     },
     env: {
@@ -45,7 +46,45 @@ const nextConfig = {
         siteUrl: baseUrl,
         siteName: siteName,
     },
+    async headers() {
+        return [
+            {
+                source: '/(.*)',
+                headers: [
+                    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+                    { key: 'X-Content-Type-Options', value: 'nosniff' },
+                    { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+                    { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+                ],
+            },
+        ]
+    },
+    async redirects() {
+        return [
+            { source: '/contact', destination: '/contact-us', permanent: true },
+            { source: '/gallery', destination: '/our-work/gallery', permanent: true },
+            { source: '/cleaning', destination: '/services/commercial-cleaning', permanent: true },
+            { source: '/gardening', destination: '/services/maintenance-services', permanent: true },
+            { source: '/matting', destination: '/services/maintenance-services', permanent: true },
+            { source: '/signage', destination: '/services/maintenance-services', permanent: true },
+            { source: '/property-management', destination: '/services/maintenance-services', permanent: true },
+            { source: '/equipment-hire', destination: '/', permanent: true },
+            { source: '/cable-protectors', destination: '/', permanent: true },
+            { source: '/retractable-belts', destination: '/', permanent: true },
+            { source: '/workplace-safety', destination: '/', permanent: true },
+            { source: '/barrier-systems', destination: '/', permanent: true },
+            { source: '/storage-systems', destination: '/', permanent: true },
+            { source: '/spill-kits', destination: '/', permanent: true },
+            { source: '/first-aid-kits', destination: '/', permanent: true },
+            { source: '/carpark-safety-equipment', destination: '/', permanent: true },
+            { source: '/covid-19-disinfection', destination: '/', permanent: true },
+            { source: '/exclusion-zone-barriers', destination: '/', permanent: true },
+            { source: '/stock-and-store-trolleys', destination: '/', permanent: true },
+            { source: '/glass-restoration', destination: '/', permanent: true },
+            { source: '/maintenance', destination: '/', permanent: true },
+            { source: '/teamscareers', destination: '/', permanent: true },
+        ]
+    },
 }
 
 module.exports = withBundleAnalyzer(nextConfig)
-

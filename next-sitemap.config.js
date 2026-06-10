@@ -27,6 +27,18 @@ const PAGE_ROUTE_MAP = {
   "maintenance-services": ["/services/maintenance-services"],
 };
 
+// Priority and changefreq per route
+const PAGE_SEO_CONFIG = {
+  "/": { priority: 1.0, changefreq: "weekly" },
+  "/services/commercial-cleaning": { priority: 0.9, changefreq: "weekly" },
+  "/services/maintenance-services": { priority: 0.9, changefreq: "weekly" },
+  "/get-free-quote": { priority: 0.8, changefreq: "monthly" },
+  "/contact-us": { priority: 0.7, changefreq: "monthly" },
+  "/our-work/gallery": { priority: 0.6, changefreq: "weekly" },
+  "/privacy-policy": { priority: 0.3, changefreq: "yearly" },
+  "/terms-and-conditions": { priority: 0.3, changefreq: "yearly" },
+};
+
 const EXCLUDED_PATHS = [
   "/thank-you",
   "/order-received",
@@ -68,7 +80,7 @@ module.exports = {
   siteUrl: normaliseUrl(SITE_URL),
   generateRobotsTxt: true,
   sitemapSize: 1000,
-  changefreq: "daily",
+  changefreq: "weekly",
   priority: 0.7,
   autoLastmod: true,
   exclude: EXCLUDED_PATHS,
@@ -77,10 +89,12 @@ module.exports = {
       return null;
     }
 
+    const seoConfig = PAGE_SEO_CONFIG[path] || {};
+
     return {
       loc: path,
-      changefreq: config.changefreq,
-      priority: config.priority,
+      changefreq: seoConfig.changefreq || config.changefreq,
+      priority: seoConfig.priority ?? config.priority,
       lastmod: config.autoLastmod ? new Date().toISOString() : undefined,
       alternateRefs: config.alternateRefs ?? [],
     };
